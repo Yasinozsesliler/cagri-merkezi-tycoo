@@ -2368,8 +2368,8 @@ const RF=[['all','Tümü',a=>true],['tired','Yorgun',a=>a.fat>50],['low','Düş�
 const RS=[['lvl','Seviye'],['eff','Verim'],['mor','Moral'],['fat','Yorgunluk'],['sal','Maaş']];
 function rosterList(){
   const E=eff(); const f=(RF.find(x=>x[0]===UI.rf)||RF[0])[2];
-  const k=UI.rs, key={lvl:a=>a.lvl*1000+a.xp/100,eff:a=>agentCap(a,E),mor:a=>a.morale,fat:a=>a.fat,sal:a=>a.sal}[k];
-  return S.agents.filter(f).sort((a,b)=>key(b)-key(a));
+  const k=UI.rs, dir=UI.rdir||1, key={lvl:a=>a.lvl*1e6+a.xp,eff:a=>agentCap(a,E),mor:a=>a.morale,fat:a=>a.fat,sal:a=>a.sal}[k]||(a=>a.lvl);
+  return S.agents.filter(f).sort((a,b)=>(key(b)-key(a))*dir || a.name.localeCompare(b.name,'tr'));
 }
 function teamSummary(){
   let sal=0,mor=0,fat=0; S.agents.forEach(a=>{sal+=a.sal;mor+=a.morale;fat+=a.fat;}); const n=Math.max(1,S.agents.length), L=UI.live||{};
@@ -2413,7 +2413,7 @@ function rosterSub(){
   const sel=S.agents.find(a=>a.id===UI.asel);
   return `<div class="tw">
     <section class="panel"><div class="tbar"><div class="chips">${RF.map(([k,n,f])=>`<button class="${UI.rf===k?'on':''}" data-act="rf" data-v="${k}">${n} <span>${S.agents.filter(f).length}</span></button>`).join('')}</div>
-      <label class="sortsel"><span class="mini">Sırala</span><select id="rsort" aria-label="Sıralama">${RS.map(([k,n])=>`<option value="${k}" ${UI.rs===k?'selected':''}>${n}</option>`).join('')}</select></label></div>
+      <div class="sortsel"><label for="rsort" class="mini">Sırala</label><select id="rsort" aria-label="Sıralama">${RS.map(([k,n])=>`<option value="${k}" ${UI.rs===k?'selected':''}>${n}</option>`).join('')}</select><button class="btn sm" data-act="rdir" title="Sıralama yönünü değiştir">${(UI.rdir||1)===1?'↓ Yüksekten düşüğe':'↑ Düşükten yükseğe'}</button></div></div>
       ${list.length?`<div class="bulk"><span class="mini">Listedeki ${list.length} kişi için:</span><button class="btn sm" data-act="bulk" data-k="train" ${idle.length&&S.money>=costAll&&costAll?'':'disabled'}>En zayıf yönünde eğit · ${fm(costAll)}</button><button class="btn sm" data-act="bulk" data-k="rest" ${idle.some(a=>a.fat>=10)?'':'disabled'}>Mola ver</button><button class="btn sm" data-act="bulk" data-k="raise" ${idle.length?'':'disabled'}>%10 zam · +${fm(raiseAll)}/ay</button></div>`:''}
       <div class="alist">${shown.map(a=>agentRow(a,E)).join('')||'<div class="empty">Bu filtrede kimse yok.</div>'}</div>
       ${pages>1?`<div class="pager" style="justify-content:center;margin-top:10px"><button class="btn sm" data-act="pg" data-v="-1" ${UI.pg?'':'disabled'} aria-label="Önceki">‹</button><span class="mono sub">${UI.pg+1}/${pages}</span><button class="btn sm" data-act="pg" data-v="1" ${UI.pg<pages-1?'':'disabled'} aria-label="Sonraki">›</button></div>`:''}
@@ -2477,6 +2477,7 @@ document.addEventListener('click',e=>{
   if(a==='sub'){ UI[b.dataset.k]=b.dataset.v; UI.pg=0; UI.rendered=null; }
   else if(a==='asel'){ UI.asel=+id; UI.dirty=true; if(innerWidth<1000) requestAnimationFrame(()=>{ const d=$('#adetail'); if(d) d.scrollIntoView({block:'start'}); }); }
   else if(a==='rf'){ UI.rf=b.dataset.v; UI.pg=0; }
+  else if(a==='rdir'){ UI.rdir=-(UI.rdir||1); UI.pg=0; }
   else if(a==='bulk') bulkAction(b.dataset.k);
   else if(a==='arest'){ const x=S.agents.find(q=>q.id==id); if(x&&!x.training){ x.training={stat:'rest',until:S.day+1}; UI.deskKey=''; toast(`${x.name} 1 günlük molaya çıktı`); } }
   else if(a==='specTrain'){ const x=S.agents.find(q=>q.id==id), sec=$('#specSel')&&$('#specSel').value, c=niceRound(trainCost(x)*2.5);
@@ -2487,7 +2488,7 @@ document.addEventListener('click',e=>{
   else return;
   UI.dirty=true;
 });
-document.addEventListener('change',e=>{ if(!S) return; if(e.target.id==='rsort'){ UI.rs=e.target.value; UI.pg=0; UI.dirty=true; } });
+document.addEventListener('change',e=>{ if(!S) return; if(e.target.id==='rsort'){ UI.rs=e.target.value; UI.pg=0; e.target.blur(); UI.dirty=true; renderView(); } });
 
 /* =========================== HEDEF LİSTESİ (her hedef kendi süresiyle) =========================== */
 function goalsList(){
