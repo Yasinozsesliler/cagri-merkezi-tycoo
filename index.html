@@ -581,6 +581,11 @@ details.set .panel{box-shadow:none}
 .vipfloat{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:88;display:flex;align-items:center;gap:12px;padding:12px 20px 12px 14px;border-radius:40px;border:1px solid rgba(255,240,200,.6);cursor:pointer;color:var(--on-gold);font:inherit;text-align:left;
   background:linear-gradient(180deg,#fff0c8,var(--gold) 45%,var(--gold-2));box-shadow:0 14px 40px -10px rgba(232,199,128,.85),0 0 0 6px rgba(232,199,128,.15)}
 .vipfloat svg{width:22px;height:22px;stroke:var(--on-gold);position:relative;z-index:1}
+.vipfloat>*{pointer-events:none}
+.vipfloat::before{content:'';position:absolute;inset:-14px;border-radius:50px}
+.vipfloat{z-index:95!important}
+.toasts{pointer-events:none}
+.vipfloat{touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:56px}
 .vipfloat b{display:block;font-size:14px}
 .vipfloat .mini{color:rgba(27,20,7,.75)}
 .vring{position:absolute;left:14px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%}
@@ -2211,7 +2216,9 @@ function vipTick(now){
   if(!ok){ if(UI.vip){ UI.vip.until+=200; } el.hidden=true; return; }
   if(!UI.vip && now>UI.vipNext){ UI.vip={until:now+12000,i:RI(0,S.agents.length-1)}; }
   if(UI.vip && now>UI.vip.until){ UI.vip=null; UI.vipNext=now+R(40000,80000); }
-  if(UI.vip){ el.hidden=false; el.innerHTML=`<span class="vring"></span>${ic('phone',2)}<span><b>VIP çağrı geliyor!</b><span class="mini">Yanıtla · ${Math.ceil((UI.vip.until-now)/1000)} sn</span></span>`;
+  if(UI.vip){ el.hidden=false;
+    if(!el.dataset.built){ el.innerHTML=`<span class="vring"></span>${ic('phone',2)}<span><b>VIP çağrı geliyor!</b><span class="mini">Yanıtlamak için dokun · <span id="vipSec"></span> sn</span></span>`; el.dataset.built='1'; }
+    const sc=$('#vipSec'); if(sc) sc.textContent=Math.ceil((UI.vip.until-now)/1000);
     const d=$('#desks'); if(d&&d.children[UI.vip.i]) d.children[UI.vip.i].classList.add('vip'); }
   else el.hidden=true;
 }
@@ -2259,6 +2266,8 @@ Object.assign(ACHX,{
   loyal5:['Operasyon',2,s=>[Object.keys(s.loyal||{}).length,5]],
   streak7:['Gelişim',1,s=>[s.stats.streakBest||0,7]],
 });
+/* VIP düğmesi: düğmenin herhangi bir yerine dokunmak yeterli, basıldığı anda yanıtlanır */
+document.addEventListener('pointerdown',e=>{ const v=e.target.closest('#vipFloat'); if(v&&S&&UI.vip){ e.preventDefault(); answerVip(); v.hidden=true; } });
 
 /* =========================== ADIM ADIM EĞİTİM =========================== */
 const vis = sel => [...document.querySelectorAll(sel)].find(e=>e.offsetParent!==null) || null;
