@@ -142,7 +142,7 @@ p{margin:0}
 .btn:hover:not(:disabled){background:rgba(255,255,255,.08);border-color:rgba(232,199,128,.35)}
 .btn:active:not(:disabled){transform:translateY(1px)}
 .btn.pri{background:linear-gradient(180deg,#f2d79d,var(--gold) 45%,var(--gold-2));color:var(--on-gold);border-color:transparent;box-shadow:0 8px 20px -10px rgba(232,199,128,.7),inset 0 1px 0 rgba(255,255,255,.5)}
-.btn.pri:hover:not(:disabled){filter:brightness(1.06)}
+.btn.pri:hover:not(:disabled){background:linear-gradient(180deg,#f2d79d,var(--gold) 45%,var(--gold-2));border-color:transparent;filter:brightness(1.07)}
 .btn.danger{color:var(--bad)}
 .btn.confirm{background:var(--bad);color:#24070d;border-color:var(--bad)}
 .btn.sm{padding:6px 11px;font-size:12px;border-radius:9px}
@@ -601,6 +601,23 @@ details.set .panel{box-shadow:none}
 .dd.now b{color:var(--gold)}
 .dd.past{opacity:.6}
 @media (max-width:460px){.daily{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* ===== EĞİTİM ===== */
+.tutspot{position:fixed;z-index:75;border-radius:16px;pointer-events:none;border:2px solid var(--gold);box-shadow:0 0 0 9999px rgba(3,5,12,.58),0 0 24px rgba(232,199,128,.55);transition:width .2s,height .2s}
+.tutcard{position:fixed;z-index:78;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));width:min(460px,calc(100vw - 32px));display:flex;flex-direction:column;gap:12px;padding:16px 18px;border-radius:20px;
+  background:linear-gradient(180deg,#18203a,#0f1527);border:1px solid rgba(232,199,128,.45);box-shadow:0 30px 60px -20px rgba(0,0,0,.9),0 0 40px -14px rgba(232,199,128,.45)}
+.tutcard.attop{bottom:auto;top:calc(16px + env(safe-area-inset-top,0px))}
+.tutcard h3{font-size:16px;margin-bottom:4px}
+.tutcard p{font-size:13.5px;color:var(--muted);line-height:1.55}
+.tutcard p b{color:var(--ink)}
+.tutav{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 15px var(--f-display);color:var(--on-gold);background:radial-gradient(circle at 30% 25%,#fff3d1,var(--gold) 45%,var(--gold-deep))}
+.tutbar{height:4px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.tutbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));transition:width .3s}
+.tutskip{border:0;background:none;color:var(--dim);font:600 12px var(--f-body);cursor:pointer;text-decoration:underline}
+.tuthint{font:700 12.5px var(--f-body);color:var(--gold)}
+@media (prefers-reduced-motion:no-preference){.tuthint{animation:hintp 1.4s ease-in-out infinite}}
+@keyframes hintp{50%{opacity:.55}}
+@media (max-width:900px){.tutcard{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 </style>
 </head>
 <body>
@@ -622,6 +639,7 @@ details.set .panel{box-shadow:none}
           <button data-act="speed" data-v="8">8×</button>
         </div>
       </div>
+      <button class="homebtn" data-act="howto" aria-label="Nasıl oynanır" title="Nasıl oynanır"><span style="font:700 17px var(--f-display);color:var(--gold)">?</span></button>
       <button class="homebtn" data-act="menu" aria-label="Kaydet ve ana menüye dön" title="Kaydet ve ana menüye dön"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></button>
     </header>
     <nav class="tabbar" id="tabs" aria-label="Bölümler"></nav>
@@ -632,12 +650,14 @@ details.set .panel{box-shadow:none}
 <section id="menu" hidden aria-label="Ana menü"></section>
 <div class="cards" id="cards" aria-live="polite"></div>
 <button class="vipfloat" id="vipFloat" data-act="vip" hidden></button>
+<div id="tutSpot" class="tutspot" hidden></div>
+<div id="tutCard" class="tutcard" hidden role="dialog" aria-label="Eğitim"></div>
 <div id="modalRoot"></div>
 <div class="toasts" id="toasts"></div>
 <script>
 'use strict';
 /* =========================== SABİTLER =========================== */
-const DAY_SEC = 6;                 // 1 oyun günü = 6 gerçek saniye (1×)
+const DAY_SEC = 15;                // 1 oyun günü = 15 gerçek saniye (1×)
 const SAVE_KEY = 'cmt_save_v1';
 const META_KEY='cmt_meta_v2', SLOT_N=4;
 const DIFFS=[{n:'Rahat',d:'Yüksek gelir, yavaş yorulan ekip. Keyifli ve akıcı.',rev:1.25,fat:.7,money:15000},{n:'Dengeli',d:'Klasik tycoon deneyimi.',rev:1,fat:1,money:0},{n:'Zorlu',d:'Dar kâr marjı, hızlı yorulan ekip.',rev:.85,fat:1.25,money:-5000}];
@@ -776,7 +796,7 @@ function newGame(name, legacy, diff){ diff = diff??0;
     agents:[], candidates:[], candDay:7, contracts:[], offers:[], offerDay:5,
     office: perkOf(L,'hq'), techs:{}, support:{lead:0,qa:0,wfm:0},
     legacy:L, ach:{}, stats:{answered:0,resolved:0,earned:0,signed:0,done:0,best:0,bestFcr:0,hired:0,trained:0,good7:0,goals:0,vip:0,streakBest:0},
-    speed:1, log:[], hist:[], dayAcc:blankAcc(), fx:[], inbox:[], nextEvent:14,
+    speed:1, log:[], hist:[], dayAcc:blankAcc(), fx:[], inbox:[], nextEvent:25, tut:null, tutDone:false,
     auto:{hire:true,renew:true,accept:true}, loan:0, negDays:0, nid:1, showReviews:true, lastTs:Date.now() };
   if(legacy){ for(const a of ACH){ /* başarımlar kalıcı */ } S.ach = legacy.ach || {}; }
   S.agents.push(genAgent(0,true), genAgent(0,true));
@@ -806,7 +826,7 @@ function genOfferBase(ti, easy){
   if(easy){ cpd = RI(24,32); pay = 16; dur = 20; }
   if(kind==='kampanya'){ cpd = Math.round(cpd*1.8); pay*=1.2; dur = Math.max(8,Math.round(dur/2)); }
   pay *= 1 + diff*.15;
-  return { id:S.nid++, co: pick(PREF)+' '+pick(sec.suf), sector:sec.id, tier:ti, kind, diff,
+  return { easy:!!easy, id:S.nid++, co: pick(PREF)+' '+pick(sec.suf), sector:sec.id, tier:ti, kind, diff,
     cpd, pay: Math.round(pay*2)/2, dur,
     slT: easy?65:RI(...t.sl), fcrT: easy?50:RI(...t.fcr)+diff*2, csT: easy?60:RI(...t.cs)+diff*2,
     exp: S.day + RI(7,13) };
@@ -925,7 +945,7 @@ function newDay(){
   S.fx = S.fx.filter(f=>f.until>S.day);
   // olay kutusu
   for(const it of [...S.inbox]) if(S.day>=it.until){ resolveEvent(it, EVENTS.find(e=>e.id===it.eid).def, true); }
-  if(!OFFLINE && S.day>=S.nextEvent){ spawnEvent(); S.nextEvent = S.day + RI(12,24); }
+  if(!OFFLINE && S.tut==null && S.day>=S.nextEvent){ spawnEvent(); S.nextEvent = S.day + RI(12,24); }
   autoHire(); autoAccept(); monthly(); goalsTick(); rivalsTick();
   // iflas
   S.negDays = S.money<0 ? S.negDays+1 : 0;
@@ -1276,7 +1296,8 @@ function menuClick(act,b){
     case 'startGame': {
       const slot=+b.dataset.slot; const n=($('#startName').value||'').trim()||'Yeni Hat İletişim';
       const L=UI.pendingLegacy||null; UI.pendingLegacy=null;
-      newGame(n.slice(0,40),L,UI.newDiff??0); UI.slot=slot; UI.lastTier=0; UI.view='dash'; UI.rendered=null; UI.deskKey=''; UI.histLen=-1;
+      const tutOn=!!($('#tutOn')&&$('#tutOn').checked);
+      newGame(n.slice(0,40),L,UI.newDiff??0); if(tutOn) startTutorial(); UI.slot=slot; UI.lastTier=0; UI.view='dash'; UI.rendered=null; UI.deskKey=''; UI.histLen=-1;
       nextModal(); hideMenu(); dailyCheck(); save(); return true; }
     case 'restart': { const L=S.legacy; L.ach=S.ach; UI.pendingLegacy=L; const slot=UI.slot, name=S.name; UI.newDiff=S.diff??0; S=null; nextModal(); queueModal({type:'newcareer',slot,legacy:L,name}); return true; }
     case 'restartMenu': nextModal(); exitToMenu(); return true;
@@ -1744,6 +1765,7 @@ function nextModal(){
       <label for="startName" class="eyebrow">Şirketinin adı</label><input type="text" id="startName" maxlength="40" value="${esc(m.name||'Yeni Hat İletişim')}">
       <span class="eyebrow">Oyun modu</span>
       <div class="diffs">${DIFFS.map((d,i)=>`<button class="diff ${UI.newDiff===i?'act':''}" data-act="pickDiff" data-v="${i}"><b>${d.n}</b><span class="mini">${d.d}</span><span class="mono-tag">₺${short(20000+d.money+(m.legacy?perkOf(m.legacy,'angel')*25000:0))} başlangıç</span></button>`).join('')}</div>
+      <label class="tog" style="border:0;padding:4px 0"><input type="checkbox" id="tutOn" checked><span><b>Eğitimle başla</b> <span class="mini">· adım adım öğretir, önerilir</span></span></label>
       <div class="row"><button class="btn pri" data-act="startGame" data-slot="${m.slot}">Şirketi kur</button>${m.legacy?'':'<button class="btn" data-act="closeModal">Vazgeç</button>'}</div>`;
   } else if(m.type==='howto'){
     h=`<span class="eyebrow" style="color:var(--gold-2)">Rehber</span><h2>Nasıl oynanır?</h2>
@@ -1756,7 +1778,7 @@ function nextModal(){
         <div><b>Şubeler</b><span class="sub">Gelişim sekmesinden şehirlerde şube aç. Şubeler sen yokken de para kazandırır.</span></div>
         <div><b>VIP çağrılar</b><span class="sub">Merkez'de altın renkli VIP çağrı belirince dokun, bonus kazan.</span></div>
         <div><b>6 · Halka arz</b><span class="sub">Ulusal seviyeden sonra şirketi halka arz et, kalıcı bonuslarla yeniden başla.</span></div>
-      </div><button class="btn pri" data-act="closeModal">Anladım</button>`;
+      </div><div class="row"><button class="btn pri" data-act="closeModal">Anladım</button>${S?'<button class="btn" data-act="tutRestart">Eğitimi baştan başlat</button>':''}</div>`;
   } else if(m.type==='tierup'){
     h=`<div class="final" style="opacity:1"><span class="eyebrow" style="color:var(--gold-2)">Yeni seviye</span><div class="n biggold" style="font-size:40px;margin-top:6px">${TIERS[m.t].title}</div></div>
       <p class="lead" style="text-align:center;margin:0 auto">${TIERS[m.t].n} ölçekli şirketler artık sana teklif gönderiyor. Yatırımcılar başarını kutlamak için kasaya katkı yaptı.</p>
@@ -1960,7 +1982,7 @@ function offersHTML(){
   let h=`<div class="ph"><div><span class="eyebrow">Yeni teklifler ${Math.max(0,Math.ceil(S.offerDay-S.day))} gün sonra</span><h2>Teklifler</h2></div><div class="row">${adActive()?`<span class="pill gold">Reklam aktif · ${Math.ceil(S.adUntil-S.day)} gün</span>`:`<button class="btn sm" data-act="ad" ${S.money>=adCost()?'':'disabled'} title="10 gün boyunca daha çok, daha kârlı ve bazen bir üst seviye teklif">Reklam ver · ${fm(adCost())}</button>`}${full?'<span class="pill">Hatlar dolu</span>':`<span class="pill green">${slots()-S.contracts.length} boş hat</span>`}</div></div>`;
   if(!S.offers.length) return h+'<div class="empty">Şu an teklif yok.</div>';
   return h+S.offers.map(o=>{ const need=Math.ceil(o.cpd*1.25/Math.max(5,avgCap));
-    return `<div class="ofr"><div class="co">${monoSq(o)}<div style="min-width:0"><b>${esc(o.co)}</b><span class="mini">${secName(o.sector)} · ${TIERS[o.tier].n}${o.loyal?` · <span class="gold">♥ sadık müşteri</span>`:''}${o.stretch?' · <span style="color:var(--violet)">üst seviye</span>':''}${o.kind==='kampanya'?' · <span class="gold">kampanya</span>':''}${o.diff?` · <span class="bad">${o.diff===2?'çok zorlu':'zorlu'}</span>`:''}</span></div></div>
+    return `<div class="ofr"><div class="co">${monoSq(o)}<div style="min-width:0"><b>${esc(o.co)}</b><span class="mini">${secName(o.sector)} · ${TIERS[o.tier].n}${o.easy?' · <span class="good">kolay · önerilen</span>':''}${o.loyal?` · <span class="gold">♥ sadık müşteri</span>`:''}${o.stretch?' · <span style="color:var(--violet)">üst seviye</span>':''}${o.kind==='kampanya'?' · <span class="gold">kampanya</span>':''}${o.diff?` · <span class="bad">${o.diff===2?'çok zorlu':'zorlu'}</span>`:''}</span></div></div>
       <div class="kv"><span><b>${fn(o.cpd)}</b>/gün</span><span><b>${payStr(o.pay)}</b>/çağrı</span><span><b>${o.dur}</b> gün</span><span>≈<b>${need}</b> kişi</span></div>
       <div class="rt"><span class="val">${fm(o.cpd*o.pay*o.dur)}</span><button class="btn pri sm" data-act="accept" data-id="${o.id}" ${full?'disabled':''}>İmzala</button></div></div>`; }).join('');
 }
@@ -2030,7 +2052,7 @@ function loop(){
   } else {
     if(UI.rendered!==UI.view || tick) renderView();
   }
-  vipTick(now);
+  vipTick(now); tutTick();
   if(tick) UI.lastSide=now;
   UI.dirty=false;
   if(now-UI.lastSave>10000){ UI.lastSave=now; save(); }
@@ -2123,7 +2145,7 @@ function genOffer(ti,easy){
 UI.vip=null; UI.vipNext=performance.now()+45000;
 function vipTick(now){
   const el=$('#vipFloat'); if(!el) return;
-  const ok = S && UI.view==='hub' && S.speed>0 && S.contracts.length && S.agents.length && !UI.modalOpen && $('#menu').hidden;
+  const ok = S && UI.view==='hub' && S.speed>0 && S.contracts.length && S.agents.length && !UI.modalOpen && $('#menu').hidden && S.tut==null;
   if(!ok){ if(UI.vip){ UI.vip.until+=200; } el.hidden=true; return; }
   if(!UI.vip && now>UI.vipNext){ UI.vip={until:now+12000,i:RI(0,S.agents.length-1)}; }
   if(UI.vip && now>UI.vip.until){ UI.vip=null; UI.vipNext=now+R(40000,80000); }
@@ -2175,6 +2197,60 @@ Object.assign(ACHX,{
   loyal5:['Operasyon',2,s=>[Object.keys(s.loyal||{}).length,5]],
   streak7:['Gelişim',1,s=>[s.stats.streakBest||0,7]],
 });
+
+/* =========================== ADIM ADIM EĞİTİM =========================== */
+const vis = sel => [...document.querySelectorAll(sel)].find(e=>e.offsetParent!==null) || null;
+const TUT=[
+  {t:'Hoş geldin, yönetici!',b:'Ben vardiya şefin Selin. Birkaç dakikada sana çağrı merkezini nasıl yöneteceğini göstereceğim. Merak etme, öğrenene kadar zaman duruyor.',pause:true},
+  {t:'Kaynakların',b:'Üst şeritte <b>kasan</b>, <b>günlük kârın</b>, <b>itibarın</b> ve <b>AR-GE puanın</b> var. İtibar en önemlisi: arttıkça daha büyük şirketler seninle çalışmak ister.',el:()=>vis('.top2 .res'),pause:true},
+  {t:'İlk sözleşmeni imzala',b:'Şirketler çağrılarını sana devretmek istiyor. Listede <b class="good">kolay · önerilen</b> yazan teklifin <b>İmzala</b> düğmesine bas.',el:()=>vis('#sec-market .ofr')||vis('#sec-market'),pause:true,go:'hub',wait:()=>S.contracts.length>0,hint:'İmzala düğmesine bas'},
+  {t:'Canlı göstergeler',b:'<b>Servis seviyesi</b>: çağrılara ne kadar hızlı yanıt verdiğin. <b>İlk temasta çözüm</b>: müşterinin sorununu tek aramada çözme oranı. <b>Memnuniyet</b>: müşterinin mutluluğu. <b>Doluluk</b>: ekibinin ne kadar meşgul olduğu. Yeşil iyi, kırmızı dikkat demek.',el:()=>vis('#board'),pause:true},
+  {t:'Sözleşme hedefleri',b:'Her sözleşmenin hedefleri var. Çubuklardaki <b>ince beyaz çizgi hedeftir</b>. Çubuk çizgiyi geçerse yeşil olur ve hedefi tutturuyorsun demektir. Sözleşme bitince sana bir karne gelir.',el:()=>vis('#sec-lines'),pause:true},
+  {t:'Zamanı başlat',b:'Şu an oyun duraklatılmış. <b>1×</b> düğmesine basarak zamanı başlat. İstediğin an <b>❚❚</b> ile durdurabilirsin; acele etmene gerek yok.',el:()=>vis('.speed'),wait:()=>S.speed>0,hint:'1× düğmesine bas'},
+  {t:'Ekibini büyüt',b:'Ekibinde 2 kişi var. Daha çok çağrı karşılamak için temsilci lazım. <b>Ekip</b> sekmesine geç.',el:()=>vis('.tab2[data-v=team]')||vis('#bnav [data-v=team]'),wait:()=>UI.view==='team',hint:'Ekip sekmesine dokun'},
+  {t:'Temsilci işe al',b:'Bir aday seç ve <b>İşe al</b> düğmesine bas. İpucu: <b>Toplam</b> puanı yüksek, maaşı düşük adaylar en verimlileridir.',el:()=>vis('#sec-hire .grid')||vis('#sec-hire'),go:'team',wait:()=>(S.stats.hired||0)>UI.tutBase,enter:()=>{UI.tutBase=S.stats.hired||0;},hint:'Bir adayı işe al'},
+  {t:'Merkeze dön',b:'Harika, ekibin büyüdü! Şimdi <b>Merkez</b> sekmesine dön.',el:()=>vis('.tab2[data-v=hub]')||vis('#bnav [data-v=hub]'),wait:()=>UI.view==='hub',hint:'Merkez sekmesine dokun'},
+  {t:'Vardiya notu',b:'Ne yapacağını bilmediğinde buraya bak. Vardiya notu sana <b>sıradaki adımı</b> söyler ve tek dokunuşla yapmanı sağlar. Karar gerektiren olaylar da burada çıkar.',el:()=>vis('#sec-advisor'),go:'hub'},
+  {t:'Hedefler ve hızlı eylemler',b:'<b>Hedefler</b> küçük görevlerdir; tamamlayınca <b>Topla</b>\'ya bas. <b>Hızlı eylemler</b> ile tek dokunuşla teklif imzalayabilir, boş masaları doldurabilir, yorgunlara mola verebilirsin.',el:()=>vis('#sec-goals'),go:'hub'},
+  {t:'Hazırsın!',b:'İyi karneler itibar getirir, itibar yeni şirketleri ve sektörleri açar. Gelişim sekmesinde teknoloji ve şubeler, Şirket sekmesinde finans ve başarımlar var. Rehbere her zaman sağ üstteki <b>?</b> düğmesinden ulaşabilirsin. Kolay gelsin!',last:true},
+];
+function startTutorial(){ S.tut=0; UI.tutShown=-1; S.speed=0; UI.dirty=true; }
+function endTutorial(skip){ S.tut=null; S.tutDone=true; if(S.speed===0) S.speed=1; UI.tutShown=-1; hideTut(); toast(skip?'Eğitim atlandı. Rehber sağ üstteki ? düğmesinde.':'Eğitim tamamlandı. Kolay gelsin!'); UI.dirty=true; }
+function tutNext(){ if(S.tut==null) return; if(TUT[S.tut].last){ endTutorial(false); return; } S.tut++; UI.tutShown=-1; UI.dirty=true; }
+function hideTut(){ const c=$('#tutCard'), s=$('#tutSpot'); if(c) c.hidden=true; if(s) s.hidden=true; }
+function tutTick(){
+  const card=$('#tutCard'), spot=$('#tutSpot'); if(!card) return;
+  if(!S || S.tut==null || UI.modalOpen || !$('#menu').hidden){ hideTut(); return; }
+  const st=TUT[S.tut];
+  if(UI.tutShown!==S.tut){
+    UI.tutShown=S.tut;
+    if(st.go && UI.view!==st.go) go(st.go);
+    if(st.enter) st.enter();
+    card.innerHTML=`<div class="row sp"><span class="eyebrow" style="color:var(--gold-2)">Eğitim · ${S.tut+1}/${TUT.length}</span><button class="tutskip" data-act="tutSkip">Eğitimi atla</button></div>
+      <div class="tutbar"><i style="width:${(S.tut+1)/TUT.length*100}%"></i></div>
+      <div class="row" style="gap:12px;align-items:flex-start"><span class="tutav">S</span><div style="min-width:0"><h3>${st.t}</h3><p>${st.b}</p></div></div>
+      <div class="row sp">${st.wait?`<span class="tuthint">👉 ${st.hint}</span>`:'<span></span>'}${st.wait?'':`<button class="btn pri sm" data-act="tutNext">${st.last?'Oynamaya başla':S.tut===0?'Başlayalım':'Devam'}</button>`}</div>`;
+    setTimeout(()=>{ const e=st.el&&st.el(); if(!e) return; const hd=document.querySelector('.head'); const off=(hd&&getComputedStyle(hd).position==='sticky'?hd.offsetHeight:0)+16; const r=e.getBoundingClientRect(); if(r.top<off || r.top>innerHeight*0.4) window.scrollTo({top:Math.max(0,scrollY+r.top-off),behavior:'auto'}); tutTick(); },60);
+  }
+  card.hidden=false;
+  if(st.pause && S.speed>0) S.speed=0;
+  if(st.wait && st.wait()){ tutNext(); return; }
+  const e=st.el&&st.el();
+  if(e){ const r=e.getBoundingClientRect(), p=8;
+    spot.hidden=false; spot.style.left=(r.left-p)+'px'; spot.style.top=(r.top-p)+'px'; spot.style.width=(r.width+p*2)+'px'; spot.style.height=(r.height+p*2)+'px';
+    const ch=card.offsetHeight+40; const coversBottom = r.top < innerHeight-ch && r.top+Math.min(r.height,160) > innerHeight-ch;
+    card.classList.toggle('attop', r.top > innerHeight*0.55 || (coversBottom && r.top > ch));
+  } else { spot.hidden=true; card.classList.remove('attop'); }
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b||!S) return;
+  const a=b.dataset.act;
+  if(a==='tutNext') tutNext();
+  else if(a==='tutSkip') endTutorial(true);
+  else if(a==='tutRestart'){ nextModal(); UI.view='hub'; UI.rendered=null; startTutorial(); }
+});
+addEventListener('scroll',()=>{ if(S&&S.tut!=null) tutTick(); },{passive:true});
+addEventListener('resize',()=>{ if(S&&S.tut!=null) tutTick(); });
 
 /* =========================== BAŞLAT =========================== */
 window.claude?.hot?.snapshot?.(()=>({S,slot:UI.slot}));
