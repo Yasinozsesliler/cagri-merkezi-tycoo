@@ -618,6 +618,58 @@ details.set .panel{box-shadow:none}
 @media (prefers-reduced-motion:no-preference){.tuthint{animation:hintp 1.4s ease-in-out infinite}}
 @keyframes hintp{50%{opacity:.55}}
 @media (max-width:900px){.tutcard{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+
+/* ===== EKİP & GELİŞİM KONTROL PANELLERİ ===== */
+.subseg{display:flex;gap:4px;padding:4px;border-radius:14px;background:var(--glass);border:1px solid var(--line);overflow-x:auto;scrollbar-width:none;width:max-content;max-width:100%}
+.subseg button{display:inline-flex;align-items:center;gap:8px;border:0;background:none;color:var(--muted);font:700 13.5px var(--f-body);padding:9px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.subseg button:hover{color:var(--ink)}
+.subseg button.on{background:linear-gradient(180deg,rgba(232,199,128,.2),rgba(232,199,128,.06));color:var(--ink);box-shadow:inset 0 0 0 1px rgba(232,199,128,.3)}
+.subseg .pill svg{width:11px;height:11px;stroke:currentColor;vertical-align:-1px}
+.tsums{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.tsum{padding:12px 14px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.tsum small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.tsum b{font:600 20px var(--f-display);letter-spacing:-.02em}
+.tsum b i{font-style:normal;font-size:13px;color:var(--muted)}
+.tsum span{font-size:11px;color:var(--dim)}
+.tempo-bar{padding:12px 16px}
+.tempo-bar .tempo{margin:0;padding:0;border:0;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.tempo-bar .tempo>.row{flex:1 1 260px}
+.tempo-bar .seg.wide{width:min(420px,100%)}
+.tw{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.tbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);font:700 12px var(--f-body);padding:6px 11px;border-radius:20px;cursor:pointer}
+.chips button span{font:600 10.5px var(--f-mono);color:var(--dim);margin-left:3px}
+.chips button.on{border-color:rgba(232,199,128,.45);color:var(--ink);background:rgba(232,199,128,.1)}
+.sortsel{display:flex;align-items:center;gap:8px}
+select{font:600 12.5px var(--f-body);color:var(--ink);background:var(--panel-2);border:1px solid var(--line-2);border-radius:9px;padding:7px 10px;min-width:0;max-width:100%}
+.bulk{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.025);border:1px dashed var(--line-2);margin-bottom:10px}
+.alist{display:flex;flex-direction:column;gap:6px}
+.arow{display:grid;grid-template-columns:auto minmax(0,1.3fr) minmax(0,1fr) minmax(0,.7fr) auto;gap:14px;align-items:center;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s,background .15s}
+.arow:hover{border-color:var(--line-2);background:var(--panel-2)}
+.arow.sel{border-color:rgba(232,199,128,.55);background:linear-gradient(90deg,rgba(232,199,128,.1),rgba(232,199,128,.02)),var(--panel)}
+.arow .av-lg{width:36px;height:36px;font-size:12px}
+.an{display:flex;flex-direction:column;min-width:0}
+.an b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.an .mini{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ast{display:grid;grid-template-columns:auto 1fr;gap:3px 6px;align-items:center;font:700 9.5px var(--f-mono);color:var(--dim)}
+.mb{display:block;height:4px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}
+.mb i{display:block;height:100%;background:linear-gradient(90deg,var(--azure),#9cc6ff)}
+.amf{display:flex;flex-direction:column;gap:6px}
+.acap{font-size:14px;font-weight:600;text-align:right;white-space:nowrap}
+.acap small{font-size:10px;color:var(--dim);font-weight:500}
+.adetail{position:sticky;top:130px;display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:var(--r);background:linear-gradient(180deg,#151c33,#0f1527);border:1px solid var(--line-2);min-width:0}
+.av-xl{width:60px;height:60px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 19px var(--f-display);color:#0a0d18;box-shadow:0 0 0 3px rgba(232,199,128,.25)}
+.bstats{display:flex;flex-direction:column;gap:10px}
+.bstat .row{font-size:12.5px;color:var(--muted)}
+.bstat .row b{color:var(--ink)}
+.bstat .sbar{height:6px;margin:4px 0 2px}
+.actgroup{display:flex;flex-direction:column;gap:7px;padding-top:12px;border-top:1px solid var(--line)}
+.actgroup select{flex:1}
+.bestc{border-color:rgba(232,199,128,.45);box-shadow:0 14px 30px -20px rgba(232,199,128,.7)}
+@media (max-width:1250px){.tsums{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1000px){.tw{grid-template-columns:minmax(0,1fr)}.adetail{position:static}.arow{grid-template-columns:auto minmax(0,1fr) auto}.arow .ast,.arow .amf{display:none}}
+@media (max-width:560px){.tsums{grid-template-columns:repeat(2,minmax(0,1fr))}.tsums .tsum:last-child{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -862,7 +914,7 @@ function step(dt){
   let cap=0,n=0,sEmp=0,sKno=0,sFat=0; const spec={};
   for(const a of S.agents){
     if(a.training){
-      if(S.day>=a.training.until){ if(a.training.stat==='rest'){ a.fat=0; a.bonus+=5; } else { const g=RI(6,10); a[a.training.stat]=Math.min(100,a[a.training.stat]+g); if(!OFFLINE) addLog(`${a.name} eğitimi bitirdi (+${g}).`); } a.training=null; UI.dirty=true; UI.deskKey=''; }
+      if(S.day>=a.training.until){ if(a.training.stat==='rest'){ a.fat=0; a.bonus+=5; } else if(a.training.stat==='spec'){ a.spec=a.training.spec; if(!OFFLINE) addLog(`${a.name} artık ${secName(a.spec)} uzmanı.`,'good'); } else { const g=RI(6,10); a[a.training.stat]=Math.min(100,a[a.training.stat]+g); if(!OFFLINE) addLog(`${a.name} eğitimi bitirdi (+${g}).`); } a.training=null; UI.dirty=true; UI.deskKey=''; }
       else { a.fat=Math.max(0,a.fat-20*dt); continue; }
     }
     a._c = agentCap(a,E); cap+=a._c; n++; sEmp+=a.emp; sKno+=a.kno; sFat+=a.fat;
@@ -880,18 +932,25 @@ function step(dt){
   }
   const capDt = cap*dt;
   const occ = totalD>0 ? (capDt>0 ? totalD/capDt : 9) : 0;
-  const sl = totalD>0 ? clamp(clamp(100*(1-Math.max(0,occ-0.7)*1.6),2,97)+E.sl,0,99.5) : 100;
-  const ansFrac = totalD>0 ? Math.min(1,1/Math.max(occ,1e-9))*(1-(100-sl)/100*0.12) : 1;
+  const slOf = o => clamp(clamp(100*(1-Math.max(0,o-0.7)*1.6),2,97)+E.sl,0,99.5);
+  const afOf = (o,s) => Math.min(1,1/Math.max(o,1e-9))*(1-(100-s)/100*0.12);
+  // Öncelikli hatlar kapasiteyi önce kullanır, kalanlar geri kalan kapasiteyi paylaşır
+  const dP = S.contracts.reduce((s,c)=>s+(c.prio?c._d:0),0), dN = totalD-dP, split = dP>0 && dN>0;
+  const occP = split ? (capDt>0 ? dP/capDt+0.08 : 9) : occ;
+  const occN = split ? (capDt>dP ? dN/(capDt-dP) : 9) : occ;
+  const slP = slOf(occP), slN = slOf(occN), afP = afOf(occP,slP), afN = afOf(occN,slN);
+  const sl = totalD>0 ? (split ? (dP*slP+dN*slN)/totalD : slN) : 100;
   let rev=0,ans=0,res=0,csw=0,dem=0;
   for(const c of S.contracts){
-    const d=c._d, a=d*ansFrac, ab=d-a;
+    const P = split && c.prio, slc = totalD>0 ? (P?slP:slN) : 100, af = totalD>0 ? (P?afP:afN) : 1;
+    const d=c._d, a=d*af, ab=d-a;
     const share = n ? (spec[c.sector]||0)/n : 0;
     const fcr = clamp(0.42+avgKno*0.0035+E.fcr+share*0.12*E.spec-avgFat*0.001-c.diff*0.03,0.25,0.97);
-    const cs = clamp(53+avgEmp*0.35+(sl-80)*0.35+(fcr*100-70)*0.5+E.csat-avgFat*0.12-c.diff*3,5,99);
+    const cs = clamp(53+avgEmp*0.35+(slc-80)*0.35+(fcr*100-70)*0.5+E.csat-avgFat*0.12-c.diff*3,5,99);
     const r=a*fcr; c.pool += (a-r)*0.4 + ab*0.3;
     const money = (a + c._auto*0.4)*c.pay*E.rev;
-    const A=c.acc; A.d+=d; A.a+=a+c._auto; A.r+=r+c._auto; A.sl+=sl*d; A.cs+=cs*a; A.rev+=money;
-    c._fcr=fcr; c._cs=cs; c._sl=sl;
+    const A=c.acc; A.d+=d; A.a+=a+c._auto; A.r+=r+c._auto; A.sl+=slc*d; A.cs+=cs*a; A.rev+=money;
+    c._fcr=fcr; c._cs=cs; c._sl=slc;
     rev+=money; ans+=a+c._auto; res+=r+c._auto; csw+=cs*a; dem+=d;
   }
   // giderler
@@ -1009,7 +1068,7 @@ function autoHire(){
 function hire(c, auto){
   if(S.agents.length>=office().seats) return;
   S.candidates.splice(S.candidates.indexOf(c),1);
-  S.agents.push(c); S.stats.hired=(S.stats.hired||0)+1;
+  c.hired=S.day; S.agents.push(c); S.stats.hired=(S.stats.hired||0)+1;
   addLog(auto?`İK sistemi ${c.name} adlı temsilciyi işe aldı.`:`${c.name} ekibe katıldı.`);
   UI.dirty=true;
 }
@@ -1906,7 +1965,9 @@ const TABMAP={dash:'hub',goals:'hub',contracts:'hub',market:'hub',events:'hub',r
 const ANCHOR={goals:'sec-goals',contracts:'sec-lines',market:'sec-market',events:'sec-advisor',hiring:'sec-hire',support:'sec-support',roster:'sec-roster',tech:'sec-tech',office:'sec-office',finance:'sec-fin',holding:'sec-hold',ach:'sec-ach',settings:'sec-set'};
 function go(v){
   const t=TABMAP[v]||v, a=ANCHOR[v];
-  const changed=UI.view!==t;
+  const SUBS={hiring:['teamSub','hire'],roster:['teamSub','roster'],support:['teamSub','support'],tech:['growSub','tech'],office:['growSub','office']};
+  let subCh=false; if(SUBS[v]&&UI[SUBS[v][0]]!==SUBS[v][1]){ UI[SUBS[v][0]]=SUBS[v][1]; subCh=true; }
+  const changed=UI.view!==t||subCh;
   UI.view=t; UI.pg=0; if(changed) UI.rendered=null; UI.dirty=true;
   if(changed) renderView();
   requestAnimationFrame(()=>{ const el=a&&document.getElementById(a);
@@ -1968,13 +2029,13 @@ function advisorHTML(){
   return `<div class="callout calm" style="border-radius:var(--r)"><span class="eyebrow" style="color:var(--azure)">Vardiya notu</span><h3 style="font-size:16px">${t[0]}</h3><p class="sub">${t[1]}</p>${t[2]?`<div><button class="btn pri sm" data-act="${k==='qa'?'qa':'go'}" ${k==='qa'?`data-k="${v}"`:`data-v="${v}"`}>${t[3]}</button></div>`:''}</div>`;
 }
 function linesHTML(){
-  let h=`<div class="ph"><div><span class="eyebrow">Operasyon</span><h2>Aktif hatlar</h2></div><span class="pill gold">${S.contracts.length}/${slots()} hat</span></div>`;
+  let h=`<div class="ph"><div><span class="eyebrow">Operasyon</span><h2>Aktif hatlar</h2></div><span class="pill gold">${S.contracts.length}/${slots()} hat</span></div>${S.contracts.length>1?'<p class="mini" style="margin:-6px 0 10px">İpucu: Bir hatta ★ öncelik verirsen ekip önce o müşterinin çağrılarını karşılar.</p>':''}`;
   if(!S.contracts.length) return h+`<div class="empty">Aktif sözleşme yok. Aşağıdaki tekliflerden birini imzala.</div>`;
   return h+'<div class="lines">'+S.contracts.map(c=>{ const k=cKpi(c), left=Math.ceil(c.start+c.dur-S.day), p=clamp((S.day-c.start)/c.dur*100,0,100);
     return `<div class="card"><div class="row sp"><div class="co">${monoSq(c)}<div style="min-width:0"><b>${esc(c.co)}</b><span class="mini">${secName(c.sector)} · ${left} gün kaldı</span></div></div>${tierTag(c.tier)}</div>
       <div class="prog"><i style="width:${p}%"></i></div>
       <div class="meters">${meter('SL',k.sl,c.slT)}${meter('FCR',k.fcr,c.fcrT)}${meter('CSAT',k.cs,c.csT)}</div>
-      <div class="row sp"><span class="mini">Gelir <b class="gold mono">${fm(c.acc.rev)}</b> · ${fn(c.cpd)} çağrı/gün</span>${cbtn('cancel:'+c.id,'Feshet','danger')}</div></div>`; }).join('')+'</div>';
+      <div class="row sp"><span class="mini">Gelir <b class="gold mono">${fm(c.acc.rev)}</b> · ${fn(c.cpd)} çağrı/gün</span><div class="row" style="gap:6px"><button class="btn sm ${c.prio?'pri':''}" data-act="prio" data-id="${c.id}" title="Öncelikli hatlar kapasiteyi önce kullanır; diğerlerinin servis seviyesi düşebilir">${c.prio?'★ Öncelikli':'☆ Öncelik ver'}</button>${cbtn('cancel:'+c.id,'Feshet','danger')}</div></div></div>`; }).join('')+'</div>';
 }
 function offersHTML(){
   const L=UI.live||{}; const avgCap=S.agents.length?(L.cap||0)/Math.max(1,L.n||S.agents.length):25;
@@ -2050,7 +2111,8 @@ function loop(){
     if(UI.rendered!=='corp' || (UI.dirty&&!typing) || (now-(UI.lastCorp||0)>4000&&!typing)){ renderView(); UI.lastCorp=now; }
     if(UI.histLen!==S.hist.length){ UI.histLen=S.hist.length; renderCharts(); }
   } else {
-    if(UI.rendered!==UI.view || tick) renderView();
+    const sel=document.activeElement&&document.activeElement.tagName==='SELECT';
+    if(UI.rendered!==UI.view || (tick&&!sel)) renderView();
   }
   vipTick(now); tutTick();
   if(tick) UI.lastSide=now;
@@ -2078,9 +2140,9 @@ const BRANCHES=[
   {id:'sgp',n:'Singapur',r:'Asya-Pasifik',t:4,cost:21000000,inc:98000},
 ];
 const BR_MAX=10;
-function branchInc(b,l){ return l? b.inc*Math.pow(l,1.15) : 0; }
+function branchInc(b,l){ return l? b.inc*Math.pow(l,1.3) : 0; }
 function branchIncome(){ let s=0; for(const b of BRANCHES) s+=branchInc(b,(S.branches||{})[b.id]||0); return s; }
-function branchCost(b){ const l=(S.branches||{})[b.id]||0; return l===0? b.cost : Math.round(b.cost*0.6*Math.pow(1.55,l)/100)*100; }
+function branchCost(b){ const l=(S.branches||{})[b.id]||0; return l===0? b.cost : Math.round(b.cost*0.6*Math.pow(1.45,l)/100)*100; }
 function buyBranch(id){
   const b=BRANCHES.find(x=>x.id===id); if(!b) return;
   const l=S.branches[b.id]||0, c=branchCost(b);
@@ -2208,7 +2270,7 @@ const TUT=[
   {t:'Sözleşme hedefleri',b:'Her sözleşmenin hedefleri var. Çubuklardaki <b>ince beyaz çizgi hedeftir</b>. Çubuk çizgiyi geçerse yeşil olur ve hedefi tutturuyorsun demektir. Sözleşme bitince sana bir karne gelir.',el:()=>vis('#sec-lines'),pause:true},
   {t:'Zamanı başlat',b:'Şu an oyun duraklatılmış. <b>1×</b> düğmesine basarak zamanı başlat. İstediğin an <b>❚❚</b> ile durdurabilirsin; acele etmene gerek yok.',el:()=>vis('.speed'),wait:()=>S.speed>0,hint:'1× düğmesine bas'},
   {t:'Ekibini büyüt',b:'Ekibinde 2 kişi var. Daha çok çağrı karşılamak için temsilci lazım. <b>Ekip</b> sekmesine geç.',el:()=>vis('.tab2[data-v=team]')||vis('#bnav [data-v=team]'),wait:()=>UI.view==='team',hint:'Ekip sekmesine dokun'},
-  {t:'Temsilci işe al',b:'Bir aday seç ve <b>İşe al</b> düğmesine bas. İpucu: <b>Toplam</b> puanı yüksek, maaşı düşük adaylar en verimlileridir.',el:()=>vis('#sec-hire .grid')||vis('#sec-hire'),go:'team',wait:()=>(S.stats.hired||0)>UI.tutBase,enter:()=>{UI.tutBase=S.stats.hired||0;},hint:'Bir adayı işe al'},
+  {t:'Temsilci işe al',b:'Bir aday seç ve <b>İşe al</b> düğmesine bas. İpucu: <b>Toplam</b> puanı yüksek, maaşı düşük adaylar en verimlileridir.',el:()=>vis('#sec-hire .grid')||vis('#sec-hire'),go:'team',wait:()=>(S.stats.hired||0)>UI.tutBase,enter:()=>{UI.tutBase=S.stats.hired||0; UI.teamSub='hire'; UI.rendered=null; renderView();},hint:'Bir adayı işe al'},
   {t:'Merkeze dön',b:'Harika, ekibin büyüdü! Şimdi <b>Merkez</b> sekmesine dön.',el:()=>vis('.tab2[data-v=hub]')||vis('#bnav [data-v=hub]'),wait:()=>UI.view==='hub',hint:'Merkez sekmesine dokun'},
   {t:'Vardiya notu',b:'Ne yapacağını bilmediğinde buraya bak. Vardiya notu sana <b>sıradaki adımı</b> söyler ve tek dokunuşla yapmanı sağlar. Karar gerektiren olaylar da burada çıkar.',el:()=>vis('#sec-advisor'),go:'hub'},
   {t:'Hedefler ve hızlı eylemler',b:'<b>Hedefler</b> küçük görevlerdir; tamamlayınca <b>Topla</b>\'ya bas. <b>Hızlı eylemler</b> ile tek dokunuşla teklif imzalayabilir, boş masaları doldurabilir, yorgunlara mola verebilirsin.',el:()=>vis('#sec-goals'),go:'hub'},
@@ -2251,6 +2313,142 @@ document.addEventListener('click',e=>{
 });
 addEventListener('scroll',()=>{ if(S&&S.tut!=null) tutTick(); },{passive:true});
 addEventListener('resize',()=>{ if(S&&S.tut!=null) tutTick(); });
+
+/* =========================== EKİP & GELİŞİM KONTROL PANELLERİ =========================== */
+UI.teamSub=UI.teamSub||'roster'; UI.growSub=UI.growSub||'office'; UI.rf=UI.rf||'all'; UI.rs=UI.rs||'lvl';
+function subSeg(key,items){
+  return `<div class="subseg" role="tablist">${items.map(([id,n,b])=>`<button role="tab" class="${UI[key]===id?'on':''}" data-act="sub" data-k="${key}" data-v="${id}">${n}${b?`<span class="pill ${b.c||''}">${b.t}</span>`:''}</button>`).join('')}</div>`;
+}
+function agentStatus(a){
+  if(a.training) return a.training.stat==='rest'?['Molada','gold']:a.training.stat==='spec'?['Uzmanlık eğitimi','gold']:['Eğitimde','gold'];
+  if(a.fat>70) return ['Çok yorgun','red']; if(a.morale<35) return ['Moral düşük','red'];
+  if(S.eom&&S.eom.id===a.id) return ['Ayın çalışanı','gold'];
+  return null;
+}
+const RF=[['all','Tümü',a=>true],['tired','Yorgun',a=>a.fat>50],['low','Düşük moral',a=>a.morale<45],['train','Eğitimde',a=>!!a.training],['idle','Hazır',a=>!a.training&&a.fat<=50]];
+const RS=[['lvl','Seviye'],['eff','Verim'],['mor','Moral'],['fat','Yorgunluk'],['sal','Maaş']];
+function rosterList(){
+  const E=eff(); const f=(RF.find(x=>x[0]===UI.rf)||RF[0])[2];
+  const k=UI.rs, key={lvl:a=>a.lvl*1000+a.xp/100,eff:a=>agentCap(a,E),mor:a=>a.morale,fat:a=>a.fat,sal:a=>a.sal}[k];
+  return S.agents.filter(f).sort((a,b)=>key(b)-key(a));
+}
+function teamSummary(){
+  let sal=0,mor=0,fat=0; S.agents.forEach(a=>{sal+=a.sal;mor+=a.morale;fat+=a.fat;}); const n=Math.max(1,S.agents.length), L=UI.live||{};
+  const occ=L.cap?L.dem/L.cap:0;
+  const t=(l,v,s,c)=>`<div class="tsum"><small>${l}</small><b class="${c||''}">${v}</b><span>${s}</span></div>`;
+  return `<div class="tsums">${t('Temsilci',`${S.agents.length}<i>/${office().seats}</i>`,'masa dolu')}${t('Kapasite',fn(L.cap||0),`talep ${fn(L.dem||0)} · %${Math.round(occ*100)} dolu`,occ>1?'bad':occ>.85?'warn':'')}${t('Ort. moral',Math.round(mor/n),'25 altı istifa riski',mor/n<40?'bad':'')}${t('Ort. yorgunluk',Math.round(fat/n),'yüksekse verim düşer',fat/n>60?'bad':'')}${t('Aylık maaş',fm(sal),'temsilciler')}</div>`;
+}
+function agentRow(a,E){
+  const st=agentStatus(a), sel=UI.asel===a.id;
+  const bar=(v,c)=>`<span class="mb"><i style="width:${clamp(v,0,100)}%;${c?'background:'+c:''}"></i></span>`;
+  return `<button class="arow ${sel?'sel':''}" data-act="asel" data-id="${a.id}">
+    <span class="av-lg" style="${avStyle(a)}">${esc(initials(a.name))}<span class="lv">${a.lvl}</span></span>
+    <span class="an"><b>${esc(a.name)}</b><span class="mini">${a.spec?secName(a.spec)+' uzmanı':'Genel temsilci'}${st?` · <span class="${st[1]==='red'?'bad':'gold'}">${st[0]}</span>`:''}</span></span>
+    <span class="ast"><span>H</span>${bar(a.spd)}<span>E</span>${bar(a.emp)}<span>B</span>${bar(a.kno)}</span>
+    <span class="amf"><span title="Moral">${bar(a.morale,'linear-gradient(90deg,#2fa57c,var(--good))')}</span><span title="Yorgunluk">${bar(a.fat,'linear-gradient(90deg,#c27a2a,var(--warn))')}</span></span>
+    <span class="acap mono">${Math.round(agentCap(a,E))}<small>/gün</small></span></button>`;
+}
+function agentDetail(a){
+  if(!a) return `<aside class="adetail"><div class="empty">Kadroda kimse yok. İşe alım sekmesinden temsilci al.</div></aside>`;
+  const E=eff(), need=300*Math.pow(a.lvl,1.4), tc=trainCost(a), st=agentStatus(a), busy=!!a.training;
+  const big=(l,v,h)=>`<div class="bstat"><div class="row sp"><span>${l}</span><b class="mono">${v}</b></div><div class="sbar"><i style="width:${v}%"></i></div><span class="mini">${h}</span></div>`;
+  const secs=SECTORS.filter(s=>s.t<=tierIdx());
+  const specCost=niceRound(tc*2.5);
+  return `<aside class="adetail" id="adetail">
+    <div class="row" style="gap:14px"><span class="av-xl" style="${avStyle(a)}">${esc(initials(a.name))}</span><div style="min-width:0"><h3 style="font-size:18px">${esc(a.name)}</h3><span class="mini">Seviye ${a.lvl} · ${a.spec?secName(a.spec)+' uzmanı':'Genel temsilci'}</span>${st?`<div style="margin-top:6px"><span class="tag ${st[1]}">${st[0]}${busy?` · ${Math.max(0,Math.ceil(a.training.until-S.day))} gün`:''}</span></div>`:''}</div></div>
+    <div><div class="row sp mini" style="margin-bottom:5px"><span>Deneyim</span><span class="mono">${fn(a.xp)} / ${fn(need)}</span></div><div class="prog"><i style="width:${Math.min(100,a.xp/need*100)}%"></i></div></div>
+    <div class="bstats">${big('Hız',a.spd,'Günde kaç çağrı alır')}${big('Empati',a.emp,'Müşteri memnuniyeti')}${big('Bilgi',a.kno,'İlk temasta çözüm')}</div>
+    <div class="spec"><div><span>Kapasite</span><b>${Math.round(agentCap(a,E))} çağrı/gün</b></div><div><span>Maaş</span><b>${fm(a.sal)}/ay</b></div><div><span>Moral</span><b class="${a.morale<40?'bad':'good'}">${Math.round(a.morale)}</b></div><div><span>Yorgunluk</span><b class="${a.fat>60?'bad':''}">${Math.round(a.fat)}</b></div><div><span>Bu ay çağrı</span><b>${fn(a.mx||0)}</b></div><div><span>Çalıştığı gün</span><b>${a.hired!=null?Math.floor(S.day-a.hired):'—'}</b></div></div>
+    <div class="actgroup"><span class="eyebrow">Eğitim · 3 gün · ${fm(tc)}</span><div class="seg wide">${[['spd','Hız'],['emp','Empati'],['kno','Ürün bilgisi']].map(([k,n])=>`<button data-act="train" data-id="${a.id}" data-s="${k}" ${busy||S.money<tc?'disabled':''}>${n} +6–10</button>`).join('')}</div></div>
+    <div class="actgroup"><span class="eyebrow">Uzmanlık eğitimi · 5 gün · ${fm(specCost)}</span><div class="row" style="gap:6px;flex-wrap:nowrap"><select id="specSel" aria-label="Uzmanlık sektörü" ${busy?'disabled':''}>${secs.map(s=>`<option value="${s.id}" ${a.spec===s.id?'selected':''}>${s.n}</option>`).join('')}</select><button class="btn sm" data-act="specTrain" data-id="${a.id}" ${busy||S.money<specCost?'disabled':''}>Başlat</button></div><span class="mini">Aynı sektördeki sözleşmelerde ilk temasta çözüm artar.</span></div>
+    <div class="row" style="gap:6px"><button class="btn sm" data-act="arest" data-id="${a.id}" ${busy||a.fat<10?'disabled':''} title="1 gün dinlenir, yorgunluk sıfırlanır">Mola ver</button><button class="btn sm" data-act="raise" data-id="${a.id}" title="Maaş +%10, moral artar">Zam yap (+%10)</button>${cbtn('fire:'+a.id,'İşten çıkar','danger')}</div>
+  </aside>`;
+}
+function rosterSub(){
+  const E=eff(), list=rosterList();
+  if(!list.find(a=>a.id===UI.asel)) UI.asel=(list[0]||S.agents[0]||{}).id;
+  const per=10, pages=Math.max(1,Math.ceil(list.length/per)); UI.pg=clamp(UI.pg,0,pages-1);
+  const shown=list.slice(UI.pg*per,UI.pg*per+per);
+  const idle=list.filter(a=>!a.training), costAll=idle.filter(a=>a.fat<=60).reduce((s,a)=>s+trainCost(a),0);
+  const raiseAll=Math.round(idle.reduce((s,a)=>s+a.sal*.1,0));
+  const sel=S.agents.find(a=>a.id===UI.asel);
+  return `<div class="tw">
+    <section class="panel"><div class="tbar"><div class="chips">${RF.map(([k,n,f])=>`<button class="${UI.rf===k?'on':''}" data-act="rf" data-v="${k}">${n} <span>${S.agents.filter(f).length}</span></button>`).join('')}</div>
+      <label class="sortsel"><span class="mini">Sırala</span><select id="rsort" aria-label="Sıralama">${RS.map(([k,n])=>`<option value="${k}" ${UI.rs===k?'selected':''}>${n}</option>`).join('')}</select></label></div>
+      ${list.length?`<div class="bulk"><span class="mini">Listedeki ${list.length} kişi için:</span><button class="btn sm" data-act="bulk" data-k="train" ${idle.length&&S.money>=costAll&&costAll?'':'disabled'}>En zayıf yönünde eğit · ${fm(costAll)}</button><button class="btn sm" data-act="bulk" data-k="rest" ${idle.some(a=>a.fat>=10)?'':'disabled'}>Mola ver</button><button class="btn sm" data-act="bulk" data-k="raise" ${idle.length?'':'disabled'}>%10 zam · +${fm(raiseAll)}/ay</button></div>`:''}
+      <div class="alist">${shown.map(a=>agentRow(a,E)).join('')||'<div class="empty">Bu filtrede kimse yok.</div>'}</div>
+      ${pages>1?`<div class="pager" style="justify-content:center;margin-top:10px"><button class="btn sm" data-act="pg" data-v="-1" ${UI.pg?'':'disabled'} aria-label="Önceki">‹</button><span class="mono sub">${UI.pg+1}/${pages}</span><button class="btn sm" data-act="pg" data-v="1" ${UI.pg<pages-1?'':'disabled'} aria-label="Sonraki">›</button></div>`:''}
+    </section>${agentDetail(sel)}</div>`;
+}
+function hireSub(){
+  const ti=tierIdx(), seats=office().seats, full=S.agents.length>=seats;
+  const val=c=>(c.spd+c.emp+c.kno)/c.sal*1000; const best=[...S.candidates].sort((a,b)=>val(b)-val(a))[0];
+  const cands=[...S.candidates].sort((a,b)=>val(b)-val(a));
+  return `<section class="panel"><div class="ph"><div><span class="eyebrow">Adaylar ${Math.max(0,Math.ceil(S.candDay-S.day))} gün sonra yenilenir · ${full?'<span class="warn">boş masa yok</span>':`${seats-S.agents.length} boş masa`}</span><h2>Aday havuzu</h2></div>
+      <div class="row"><button class="btn sm" data-act="recruit">Standart ilan · ${fm(1500*(ti+1))}</button><button class="btn sm" data-act="recruitP" title="Daha yetenekli adaylar">Premium ilan · ${fm(6000*(ti+1))}</button><button class="btn pri sm" data-act="qa" data-k="fill" ${full?'disabled':''}>Boş masaları doldur</button></div></div>
+    <div class="grid g3">${cands.map(c=>`<div class="card ${c===best?'bestc':''}"><div class="row sp"><div class="co"><span class="av-lg" style="${avStyle(c)}">${esc(initials(c.name))}</span><div style="min-width:0"><b>${esc(c.name)}</b><span class="mini">${c.spec?secName(c.spec)+' uzmanı':'Genel temsilci'}</span></div></div>${c===best?'<span class="tag gold">En verimli</span>':''}</div>
+      ${statBlock(c)}<div class="row sp"><div><span class="eyebrow">Maaş</span><div class="mono" style="font-weight:600">${fm(c.sal)}/ay</div></div><div style="text-align:right"><span class="eyebrow">Toplam</span><div class="mono gold" style="font-weight:600">${c.spd+c.emp+c.kno}</div></div></div>
+      <button class="btn pri" data-act="hire" data-id="${c.id}" ${full?'disabled':''}>İşe al</button></div>`).join('')||'<div class="empty">Aday kalmadı. İlan vererek yeni adaylar çekebilirsin.</div>'}</div></section>`;
+}
+function teamView(){
+  const sub=UI.teamSub;
+  const freeSeats=office().seats-S.agents.length;
+  return `${teamSummary()}${subSeg('teamSub',[['roster','Kadro',{t:S.agents.length}],['hire','İşe alım',freeSeats&&S.candidates.length?{t:freeSeats+' boş',c:'green'}:null],['support','Destek kadrosu',{t:S.support.lead+S.support.qa+S.support.wfm}]])}
+    <section class="panel tempo-bar">${tempoHTML()}</section>
+    <div id="sec-roster" ${sub==='roster'?'':'hidden'}>${sub==='roster'?rosterSub():''}</div>
+    <div id="sec-hire" ${sub==='hire'?'':'hidden'}>${sub==='hire'?hireSub():''}</div>
+    <div id="sec-support" ${sub==='support'?'':'hidden'}>${sub==='support'?supportPage():''}</div>`;
+}
+
+/* --- Gelişim --- */
+function branchesHTML2(){
+  const ti=tierIdx(), rv=eff().rev, tot=branchIncome()*rv;
+  const afford=BRANCHES.filter(b=>ti>=b.t&&(S.branches[b.id]||0)<BR_MAX&&S.money>=branchCost(b));
+  return `<section class="panel"><div class="ph"><div><span class="eyebrow">Pasif gelir · sen yokken de çalışır</span><h2>Şubeler <span class="gold mono" style="font-size:15px">+${fm(tot)}/gün</span></h2></div><button class="btn pri sm" data-act="branchAll" ${afford.length?'':'disabled'}>Uygun olanları geliştir${afford.length?` (${afford.length})`:''}</button></div>
+    <div class="brs">${BRANCHES.map(b=>{ const l=S.branches[b.id]||0, lock=ti<b.t, c=branchCost(b), can=!lock&&l<BR_MAX&&S.money>=c;
+      const gain=(branchInc(b,l+1)-branchInc(b,l))*rv, pay=gain>0?Math.ceil(c/gain):0;
+      return `<div class="br ${l?'own':''} ${lock?'locked':''}"><div class="row sp"><div style="min-width:0"><b>${b.n}</b><span class="mini">${b.r}</span></div>${l?`<span class="pill gold">Sv ${l}</span>`:lock?`<span class="pill">${ic('lock',2)}</span>`:''}</div>
+        <div class="lvd">${Array.from({length:BR_MAX},(_,i)=>`<i class="${i<l?'on':''}"></i>`).join('')}</div>
+        <div class="spec" style="grid-template-columns:1fr"><div><span>Şu an</span><b class="${l?'gold':''}">${l?'+'+fm(branchInc(b,l)*rv):'—'}/gün</b></div>${l<BR_MAX?`<div><span>${l?'Geliştirince':'Açınca'}</span><b class="good">+${fm(gain)}/gün</b></div><div><span>Kendini öder</span><b>${pay} gün</b></div>`:''}</div>
+        ${lock?`<button class="btn sm" disabled>${TIERS[b.t].title} gerekir</button>`:l>=BR_MAX?'<button class="btn sm" disabled>En üst seviye</button>':`<button class="btn sm ${can?'pri':''}" data-act="branch" data-id="${b.id}" ${can?'':'disabled'}>${l?'Geliştir':'Şube aç'} · ${fm(c)}</button>`}</div>`; }).join('')}</div></section>`;
+}
+function growView(){
+  const sub=UI.growSub, ti=tierIdx();
+  const techReady=TECHS.filter(t=>techState(t)==='ready').length;
+  const brReady=BRANCHES.filter(b=>ti>=b.t&&(S.branches[b.id]||0)<BR_MAX&&S.money>=branchCost(b)).length;
+  const nx=OFFICES[S.office+1], offReady=nx&&S.money>=nx.cost;
+  return `${subSeg('growSub',[['office','Tesis',offReady?{t:'Taşınabilir',c:'gold'}:null],['branch','Şubeler',brReady?{t:brReady,c:'gold'}:{t:Object.values(S.branches).filter(Boolean).length+'/'+BRANCHES.length}],['tech','AR-GE',techReady?{t:techReady,c:'gold'}:{t:Object.keys(S.techs).length+'/'+TECHS.length}]])}
+    <div id="sec-office" ${sub==='office'?'':'hidden'}>${sub==='office'?officePage():''}</div>
+    <div id="sec-branch" ${sub==='branch'?'':'hidden'}>${sub==='branch'?branchesHTML2():''}</div>
+    <div id="sec-tech" ${sub==='tech'?'':'hidden'}>${sub==='tech'?techPage():''}</div>`;
+}
+
+/* --- Eylemler --- */
+function bulkAction(k){
+  const list=rosterList().filter(a=>!a.training); let n=0, cost=0;
+  if(k==='train'){ for(const a of list){ if(a.fat>60) continue; const c=trainCost(a); if(S.money<c) break; const st=['spd','emp','kno'].sort((x,y)=>a[x]-a[y])[0]; S.money-=c; cost+=c; a.training={stat:st,until:S.day+3}; S.stats.trained=(S.stats.trained||0)+1; n++; } toast(n?`${n} kişi eğitime başladı (${fm(cost)})`:'Uygun kimse yok'); }
+  else if(k==='rest'){ for(const a of list) if(a.fat>=10){ a.training={stat:'rest',until:S.day+1}; n++; } toast(n?`${n} kişi 1 günlük molaya çıktı`:'Molaya ihtiyacı olan yok'); }
+  else if(k==='raise'){ for(const a of list){ a.sal=Math.round(a.sal*1.1/50)*50; a.bonus+=18; n++; } toast(`${n} kişiye %10 zam yapıldı`); }
+  if(n) addLog(k==='train'?`${n} temsilci toplu eğitime gönderildi.`:k==='rest'?`${n} temsilci molaya çıktı.`:`${n} temsilciye zam yapıldı.`);
+  UI.deskKey=''; UI.dirty=true;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b||!S) return;
+  const a=b.dataset.act, id=b.dataset.id;
+  if(a==='sub'){ UI[b.dataset.k]=b.dataset.v; UI.pg=0; UI.rendered=null; }
+  else if(a==='asel'){ UI.asel=+id; UI.dirty=true; if(innerWidth<1000) requestAnimationFrame(()=>{ const d=$('#adetail'); if(d) d.scrollIntoView({block:'start'}); }); }
+  else if(a==='rf'){ UI.rf=b.dataset.v; UI.pg=0; }
+  else if(a==='bulk') bulkAction(b.dataset.k);
+  else if(a==='arest'){ const x=S.agents.find(q=>q.id==id); if(x&&!x.training){ x.training={stat:'rest',until:S.day+1}; UI.deskKey=''; toast(`${x.name} 1 günlük molaya çıktı`); } }
+  else if(a==='specTrain'){ const x=S.agents.find(q=>q.id==id), sec=$('#specSel')&&$('#specSel').value, c=niceRound(trainCost(x)*2.5);
+    if(x&&!x.training&&sec&&S.money>=c){ S.money-=c; x.training={stat:'spec',spec:sec,until:S.day+5}; S.stats.trained=(S.stats.trained||0)+1; UI.deskKey=''; addLog(`${x.name} ${secName(sec)} uzmanlık eğitimine başladı (${fm(c)}).`); toast('Uzmanlık eğitimi başladı'); } }
+  else if(a==='recruitP'){ const ti=tierIdx(), c=6000*(ti+1); if(S.money>=c){ S.money-=c; S.candidates=[]; for(let i=0;i<4+Math.min(4,S.office);i++){ const g=genAgent(ti); for(const k of ['spd','emp','kno']) g[k]=Math.min(95,g[k]+RI(6,12)); g.sal=Math.round((3000+(g.spd+g.emp+g.kno)*22)/100)*100; S.candidates.push(g); } S.candDay=S.day+7; addLog('Premium ilan yayınlandı, yetenekli adaylar geldi.','good'); toast('Premium adaylar geldi'); } }
+  else if(a==='branchAll'){ let n=0; for(let i=0;i<20;i++){ const ti=tierIdx(); const c=BRANCHES.filter(x=>ti>=x.t&&(S.branches[x.id]||0)<BR_MAX&&S.money>=branchCost(x)).sort((x,y)=>branchCost(x)-branchCost(y))[0]; if(!c) break; S.money-=branchCost(c); S.branches[c.id]=(S.branches[c.id]||0)+1; n++; } if(n){ addLog(`${n} şube geliştirmesi yapıldı.`,'good'); toast(`${n} şube geliştirildi`); checkAch(); } }
+  else if(a==='prio'){ const c=S.contracts.find(q=>q.id==id); if(c){ c.prio=!c.prio; toast(c.prio?`${c.co} öncelikli hat oldu`:`${c.co} normal önceliğe döndü`); } }
+  else return;
+  UI.dirty=true;
+});
+document.addEventListener('change',e=>{ if(!S) return; if(e.target.id==='rsort'){ UI.rs=e.target.value; UI.pg=0; UI.dirty=true; } });
 
 /* =========================== BAŞLAT =========================== */
 window.claude?.hot?.snapshot?.(()=>({S,slot:UI.slot}));
