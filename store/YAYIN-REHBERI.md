@@ -9,7 +9,7 @@
 | `privacy.html` | Gizlilik politikası (Vercel'de `/privacy` adresinde yayında) |
 | `resources/` | Uygulama ikonu ve açılış ekranı kaynakları |
 
-Paket adı: `com.ozsesliler.cagrimerkezi` — Play'e ilk yüklemeden sonra **değiştirilemez**. Değiştirmek istersen ilk yüklemeden önce `capacitor.config.json`, `android/app/build.gradle` ve `android/app/src/main/res/values/strings.xml` içinde değiştir.
+Paket adı: `com.ozsesliler.callcentersimulator` — Play'e ilk yüklemeden sonra **değiştirilemez**. Değiştirmek istersen ilk yüklemeden önce `capacitor.config.json`, `android/app/build.gradle` ve `android/app/src/main/res/values/strings.xml` içinde değiştir.
 
 ## 1. İmza anahtarını GitHub'a ekle (bir kez)
 Sana ayrıca verilen `github-secrets.txt` dosyasındaki 4 değeri ekle:

@@ -1,4 +1,4 @@
-package com.ozsesliler.cagrimerkezi;
+package com.ozsesliler.callcentersimulator;
 
 import com.getcapacitor.BridgeActivity;
 

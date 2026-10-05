@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.ozsesliler.cagrimerkezi"
+    namespace = "com.ozsesliler.callcentersimulator"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.ozsesliler.cagrimerkezi"
+        applicationId "com.ozsesliler.callcentersimulator"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Her bulut derlemesinde artar (GitHub Actions çalıştırma numarası)

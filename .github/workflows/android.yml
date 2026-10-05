@@ -67,8 +67,8 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon bundleRelease assembleRelease
           mkdir -p ../dist
-          cp app/build/outputs/bundle/release/app-release.aab "../dist/cagri-merkezi-tycoon-$VERSION_NAME.aab"
-          cp app/build/outputs/apk/release/app-release.apk "../dist/cagri-merkezi-tycoon-$VERSION_NAME.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "../dist/call-center-simulator-$VERSION_NAME.aab"
+          cp app/build/outputs/apk/release/app-release.apk "../dist/call-center-simulator-$VERSION_NAME.apk"
 
       - name: Derle (test APK)
         if: steps.sign.outputs.signed != 'true'
@@ -77,13 +77,13 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon assembleDebug bundleRelease
           mkdir -p ../dist
-          cp app/build/outputs/apk/debug/app-debug.apk "../dist/cagri-merkezi-tycoon-$VERSION_NAME-test.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "../dist/call-center-simulator-$VERSION_NAME-test.apk"
           # İmzasız AAB: yerelde anahtarla imzalanıp Play Console'a yüklenebilir
-          cp app/build/outputs/bundle/release/app-release.aab "../dist/cagri-merkezi-tycoon-$VERSION_NAME-unsigned.aab"
+          cp app/build/outputs/bundle/release/app-release.aab "../dist/call-center-simulator-$VERSION_NAME-unsigned.aab"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cagri-merkezi-tycoon-${{ env.VERSION_NAME }}
+          name: call-center-simulator-${{ env.VERSION_NAME }}
           path: dist/*
 
       - name: Sürüm sayfasına yükle
