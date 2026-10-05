@@ -689,6 +689,36 @@ select{font:600 12.5px var(--f-body);color:var(--ink);background:var(--panel-2);
 .rdbar{padding:14px 18px}
 .claimall{width:100%;margin-bottom:10px}
 @media (max-width:760px){.upgs{grid-template-columns:minmax(0,1fr)}}
+
+/* ===== BİLDİRİM, ÖDÜL, ŞEHİR ===== */
+.bell{position:relative}
+.bell .slash{display:none;stroke:var(--bad)}
+.bell[data-mode="off"] .slash{display:block}
+.bell[data-mode="off"] svg{stroke:var(--dim)}
+.bell .bdot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.bell[data-mode="imp"] .bdot{background:var(--azure)}
+.bell[data-mode="off"] .bdot{display:none}
+.cards{pointer-events:none}
+.rcard{pointer-events:auto;cursor:pointer}
+.awl{display:flex;flex-direction:column;gap:8px}
+.awr{display:flex;gap:12px;align-items:center;padding:11px 12px;border-radius:13px;background:var(--panel);border:1px solid var(--line);min-width:0}
+.awr.win{border-color:rgba(232,199,128,.45);background:linear-gradient(160deg,rgba(232,199,128,.12),rgba(232,199,128,.02)),var(--panel)}
+.awr>div>b,.awr>div>.row b{font-size:13.5px;display:block}
+.awr>div>.mini{display:block;margin-top:2px}
+.tro{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;background:rgba(255,255,255,.05)}
+.tro svg{width:18px;height:18px;stroke:var(--dim)}
+.awr.win .tro{background:radial-gradient(circle at 30% 25%,#fff3d1,var(--gold) 45%,var(--gold-deep))}
+.awr.win .tro svg{stroke:var(--on-gold)}
+.cabinet{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.cups{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.cup{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:12px 8px;border-radius:12px;background:linear-gradient(180deg,rgba(232,199,128,.12),rgba(232,199,128,.02));border:1px solid rgba(232,199,128,.25)}
+.cup svg{width:28px;height:28px;stroke:var(--gold)}
+.cup span{font:700 11.5px var(--f-body);line-height:1.25}
+.cup small{font-size:9.5px;color:var(--dim)}
+.br{padding:0 12px 12px;overflow:hidden}
+.br>.row:first-of-type{margin-top:2px}
+.city{display:block;width:calc(100% + 24px);margin:0 -12px 4px;height:88px;border-bottom:1px solid var(--line)}
+.city.off{filter:grayscale(1) brightness(.6)}
 </style>
 </head>
 <body>
@@ -710,6 +740,7 @@ select{font:600 12.5px var(--f-body);color:var(--ink);background:var(--panel-2);
           <button data-act="speed" data-v="8">8×</button>
         </div>
       </div>
+      <button class="homebtn bell" id="bellBtn" data-act="bell" data-mode="imp" aria-label="Bildirimler"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/><path class="slash" d="M3 3l18 18"/></svg><i class="bdot"></i></button>
       <button class="homebtn" data-act="howto" aria-label="Nasıl oynanır" title="Nasıl oynanır"><span style="font:700 17px var(--f-display);color:var(--gold)">?</span></button>
       <button class="homebtn" data-act="menu" aria-label="Kaydet ve ana menüye dön" title="Kaydet ve ana menüye dön"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></button>
     </header>
@@ -854,7 +885,7 @@ function perk(id){ return (S && S.legacy.spent[id]) || 0; }
 function perkOf(L,id){ return (L.spent && L.spent[id]) || 0; }
 function tierIdx(){ let t=0; TIERS.forEach((x,i)=>{ if(S.rep>=x.rep) t=i; }); return t; }
 function has(id){ return !!S.techs[id]; }
-function slots(){ return 2 + S.office + (has('autorenew')?1:0); }
+function slots(){ return 2 + S.office + (has('autorenew')?1:0) + perk('lines'); }
 function office(){ return OFFICES[S.office]; }
 function dateStr(d){ d=Math.floor(d); const y=Math.floor(d/360)+1, m=Math.floor((d%360)/30), dd=d%30+1; return `${dd} ${MONTHS[m]} · Yıl ${y}`; }
 function dateShort(d){ d=Math.floor(d); const m=Math.floor((d%360)/30), dd=d%30+1; return `${dd} ${MONTHS[m].slice(0,3)}`; }
@@ -934,7 +965,7 @@ function step(dt){
   let cap=0,n=0,sEmp=0,sKno=0,sFat=0; const spec={};
   for(const a of S.agents){
     if(a.training){
-      if(S.day>=a.training.until){ if(a.training.stat==='rest'){ a.fat=0; a.bonus+=5; } else if(a.training.stat==='spec'){ a.spec=a.training.spec; if(!OFFLINE) addLog(`${a.name} artık ${secName(a.spec)} uzmanı.`,'good'); } else { const g=RI(6,10); a[a.training.stat]=Math.min(100,a[a.training.stat]+g); if(!OFFLINE) addLog(`${a.name} eğitimi bitirdi (+${g}).`); } a.training=null; UI.dirty=true; UI.deskKey=''; }
+      if(S.day>=a.training.until){ if(a.training.stat==='rest'){ a.fat=0; a.bonus+=5; S.stats.rests=(S.stats.rests||0)+1; } else if(a.training.stat==='spec'){ a.spec=a.training.spec; S.stats.specs=(S.stats.specs||0)+1; if(!OFFLINE) addLog(`${a.name} artık ${secName(a.spec)} uzmanı.`,'good'); } else { const g=RI(6,10); a[a.training.stat]=Math.min(100,a[a.training.stat]+g); if(!OFFLINE) addLog(`${a.name} eğitimi bitirdi (+${g}).`); } a.training=null; UI.dirty=true; UI.deskKey=''; }
       else { a.fat=Math.max(0,a.fat-20*dt); continue; }
     }
     a._c = agentCap(a,E); cap+=a._c; n++; sEmp+=a.emp; sKno+=a.kno; sFat+=a.fat;
@@ -1006,7 +1037,7 @@ function step(dt){
 
 function newDay(){
   const D=S.dayAcc;
-  const h={d:Math.floor(S.day)-1, calls:D.d, ans:D.a, fcr:D.a>0?D.r/D.a*100:0, sl:D.d>0?D.sl/D.d:null, profit:D.rev-D.cost};
+  const h={d:Math.floor(S.day)-1, calls:D.d, ans:D.a, fcr:D.a>0?D.r/D.a*100:0, sl:D.d>0?D.sl/D.d:null, cs:D.a>0?D.cs/D.a:null, profit:D.rev-D.cost};
   S.hist.push(h); if(S.hist.length>90) S.hist.shift();
   if(D.a>20) S.stats.bestFcr=Math.max(S.stats.bestFcr,h.fcr);
   S.dayAcc=blankAcc();
@@ -1019,7 +1050,7 @@ function newDay(){
     S.offerDay = S.day + (adActive()?3:5); if(!OFFLINE) addLog('Yeni sözleşme teklifleri geldi.');
   }
   if(S.offers.length!==before) UI.dirty=true;
-  if(S.day>=S.candDay){ S.candidates=[]; for(let i=0;i<4+Math.min(4,S.office);i++) S.candidates.push(genAgent(ti)); S.candDay=S.day+7; UI.dirty=true; }
+  if(S.day>=S.candDay){ S.candidates=[]; for(let i=0;i<candN();i++) S.candidates.push(genAgent(ti)); S.candDay=S.day+7; UI.dirty=true; }
   // istifalar
   for(const a of [...S.agents]){ if(a.morale<25 && Math.random()<.05){ S.agents.splice(S.agents.indexOf(a),1); addLog(`${a.name} düşük moral yüzünden istifa etti.`,'bad'); UI.dirty=true; } }
   S.fx = S.fx.filter(f=>f.until>S.day);
@@ -1191,12 +1222,12 @@ function importCode(code){ const s=JSON.parse(decodeURIComponent(escape(atob(cod
 function offlineCatchup(){
   const el=(Date.now()-(S.lastTs||Date.now()))/1000;
   if(el<30) return;
-  const days=Math.min(el/DAY_SEC, 240);
+  const cap=240+60*perk('offline'); const days=Math.min(el/DAY_SEC, cap);
   const m0=S.money, r0=S.rep, c0=S.stats.answered, d0=S.stats.done;
   OFFLINE=true;
   let left=days; while(left>0){ const dt=Math.min(.25,left); step(dt); left-=dt; }
   OFFLINE=false;
-  queueModal({type:'offline', days, money:S.money-m0, rep:S.rep-r0, calls:S.stats.answered-c0, done:S.stats.done-d0, capped: el/DAY_SEC>240});
+  queueModal({type:'offline', days, money:S.money-m0, rep:S.rep-r0, calls:S.stats.answered-c0, done:S.stats.done-d0, capped: el/DAY_SEC>cap, cap});
 }
 
 /* =========================== GÜNLÜK / BİLDİRİM =========================== */
@@ -1216,7 +1247,8 @@ function saveMeta(){ try{ localStorage.setItem(META_KEY,JSON.stringify(META)); }
 function metaOf(s){ const prev=S; S=s; const m={name:s.name,tier:tierIdx(),money:s.money,day:s.day,ts:Date.now(),diff:s.diff??1,ipos:s.legacy.ipos,agents:s.agents.length}; S=prev; return m; }
 function migrate(s){
   s.goals=s.goals||[]; s.goalsDay=s.goalsDay||0; s.diff=s.diff??1; s.eom=s.eom||null; s.reviewModal=!!s.reviewModal;
-  for(const k of ['hired','trained','good7','goals','vip','streakBest']) s.stats[k]=s.stats[k]||0;
+  for(const k of ['hired','trained','good7','goals','vip','streakBest','rests','specs','ads','awards','cancels','vipMiss','fast']) s.stats[k]=s.stats[k]||0;
+  s.flags=s.flags||{}; s.trophies=s.trophies||[]; if(!s.notif) s.notif='imp';
   s.branches=s.branches||{}; s.loyal=s.loyal||{}; s.tempo=s.tempo??1; s.adUntil=s.adUntil||0;
   if(!s.rivals){ const p=S; S=s; s.rivals=genRivals(); for(const r of s.rivals) r.rep+=r.g*s.day; S=p; }
   return s;
@@ -1323,7 +1355,7 @@ function qaSign(){
 function qaTrain(){
   let n=0,cost=0;
   for(const a of S.agents){ if(a.training||a.fat>60) continue; const c=trainCost(a); if(S.money-c<5000) break;
-    const st=['spd','emp','kno'].sort((x,y)=>a[x]-a[y])[0]; S.money-=c; cost+=c; a.training={stat:st,until:S.day+3}; S.stats.trained=(S.stats.trained||0)+1; n++; }
+    const st=['spd','emp','kno'].sort((x,y)=>a[x]-a[y])[0]; if(a[st]>=100) continue; S.money-=c; cost+=c; a.training={stat:st,until:S.day+3}; S.stats.trained=(S.stats.trained||0)+1; n++; }
   UI.deskKey=''; if(n) addLog(`${n} temsilci en zayıf yönünde eğitime başladı (${fm(cost)}).`);
   toast(n?`${n} kişi eğitime gönderildi (${fm(cost)})`:'Eğitime uygun kimse ya da bütçe yok');
 }
@@ -1635,7 +1667,7 @@ function eventsPage(){
 function statBlock(a){
   return `<div class="stats3"><span>Hız</span><div class="sbar"><i style="width:${a.spd}%"></i></div><b>${a.spd}</b><span>Empati</span><div class="sbar"><i style="width:${a.emp}%"></i></div><b>${a.emp}</b><span>Bilgi</span><div class="sbar"><i style="width:${a.kno}%"></i></div><b>${a.kno}</b></div>`;
 }
-function trainCost(a){ return Math.round((1500+a.lvl*500)*eff().train/50)*50; }
+function trainCost(a){ return Math.round((1500+a.lvl*500)*eff().train*(1-.08*perk('trainer'))/50)*50; }
 function rosterPage(){
   const per=12, pages=Math.max(1,Math.ceil(S.agents.length/per)); UI.pg=clamp(UI.pg,0,pages-1);
   const list=[...S.agents].sort((a,b)=>b.lvl-a.lvl||b.xp-a.xp).slice(UI.pg*per,UI.pg*per+per);
@@ -1809,14 +1841,14 @@ function achPage(){
   const got=ACH.filter(a=>S.ach[a[0]]).length, P=got/ACH.length;
   const f=UI.achF||'all';
   const r=34,C=2*Math.PI*r;
-  const rows=ACH.map(([id,n,d])=>{ const x=ACHX[id]||['Diğer',0,()=>[0,1]]; const [cur,tg]=x[2](S); return {id,n,d,cat:x[0],rank:x[1],cur:Math.min(cur,tg),tg,got:!!S.ach[id]}; });
+  const rows=ACH.map(([id,n,d,f,hid])=>{ const x=ACHX[id]||['Diğer',0,()=>[0,1]]; const [cur,tg]=x[2](S); const got=!!S.ach[id]; return {id,n:hid&&!got?'Gizli rozet':n,d:hid&&!got?'Nasıl açılacağı sürpriz. Garip şeyler dene.':d,hid,cat:x[0],rank:x[1],cur:Math.min(cur,tg),tg,got}; });
   const near=rows.filter(a=>!a.got).sort((a,b)=>b.cur/b.tg-a.cur/a.tg)[0];
   const fmtv=(a,v)=>(a.id==='m1'||a.id==='m100')?fm(v):fn(v);
   const tile=a=>{ const R=RANKS[a.rank];
-    return `<div class="achv ${a.got?'got':''}" style="--rc:${R.c};--rc2:${R.c2}"><span class="medal2">${ic(a.got?'star':'lock',2)}</span><div class="ax"><div class="row sp" style="gap:6px"><b>${a.n}</b><span class="rk">${R.n}</span></div><span class="mini">${a.d}</span>
-      ${a.got?`<span class="won">Kazanıldı · ${dateShort((S.ach[a.id]||1)-1)}</span>`:`<div class="aprog"><i style="width:${a.cur/a.tg*100}%"></i></div><span class="mini mono">${fmtv(a,a.cur)} / ${fmtv(a,a.tg)}</span>`}</div></div>`; };
+    return `<div class="achv ${a.got?'got':''}" style="--rc:${R.c};--rc2:${R.c2}"><span class="medal2">${a.hid&&!a.got?'<b style="font:700 16px var(--f-display);color:var(--dim)">?</b>':ic(a.got?'star':'lock',2)}</span><div class="ax"><div class="row sp" style="gap:6px"><b>${a.n}</b><span class="rk">${R.n}</span></div><span class="mini">${a.d}</span>
+      ${a.got?`<span class="won">Kazanıldı · ${dateShort((S.ach[a.id]||1)-1)}</span>`:a.hid?'':`<div class="aprog"><i style="width:${a.cur/a.tg*100}%"></i></div><span class="mini mono">${fmtv(a,a.cur)} / ${fmtv(a,a.tg)}</span>`}</div></div>`; };
   const list=rows.filter(a=>f==='all'||(f==='got'?a.got:!a.got));
-  const cats=['Operasyon','Ekip','Büyüme','Gelişim'];
+  const cats=['Operasyon','Ekip','Büyüme','Gelişim','Gizli'];
   const st=(l,v)=>`<div class="astat"><small>${l}</small><b>${v}</b></div>`;
   return `<section class="panel"><div class="achtop">
       <div class="ring"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7"/><circle cx="40" cy="40" r="${r}" fill="none" stroke="url(#rg)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(C*P).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 40 40)"/><defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" stop-color="#a07a36"/><stop offset="1" stop-color="#f2d79d"/></linearGradient></defs></svg><div><b>${got}</b><span>/ ${ACH.length}</span></div></div>
@@ -1887,10 +1919,12 @@ function nextModal(){
       ${m.renewed?'<p class="sub">Müşteri sözleşmeyi %10 daha yüksek hacimle yeniledi.</p>':''}
       <button class="btn pri" data-act="closeModal">Devam</button>`;
   } else if(m.type==='offline'){
-    h=`<span class="eyebrow" style="color:var(--gold-2)">Hoş geldin</span><h2>Sen yokken ${Math.floor(m.days)} gün geçti</h2>${m.capped?'<p class="sub">Çevrimdışı ilerleme 240 günle sınırlı.</p>':''}
+    h=`<span class="eyebrow" style="color:var(--gold-2)">Hoş geldin</span><h2>Sen yokken ${Math.floor(m.days)} gün geçti</h2>${m.capped?'<p class="sub">Çevrimdışı ilerleme ${m.cap||240} günle sınırlı.</p>':''}
       <div class="spec"><div><span>Kasa</span><b class="${m.money>=0?'good':'bad'}">${m.money>=0?'+':''}${fm(m.money)}</b></div><div><span>Yanıtlanan çağrı</span><b>${fn(m.calls)}</b></div><div><span>Biten sözleşme</span><b>${m.done}</b></div><div><span>İtibar</span><b>${m.rep>=0?'+':''}${fn(m.rep)}</b></div></div>
       ${!has('autorenew')?'<p class="sub">İpucu: Hesap Yöneticisi Sistemi sen yokken sözleşmeleri yeniler ve yeni teklifleri kabul eder.</p>':''}
       <button class="btn pri" data-act="closeModal">Devam</button>`;
+  } else if(m.type==='awards'){
+    h=awardsModalHTML(m);
   } else if(m.type==='daily'){
     h=dailyModalHTML(m);
   } else if(m.type==='bankrupt'){
@@ -1929,8 +1963,8 @@ document.addEventListener('click',e=>{
     case 'accept': { const o=S.offers.find(x=>x.id==id); if(o){ acceptOffer(o); toast(`${o.co} ile sözleşme imzalandı`); } break; }
     case 'event': { const it=S.inbox.find(x=>x.key==b.dataset.k); if(it) resolveEvent(it,+b.dataset.c,false); break; }
     case 'hire': { const c=S.candidates.find(x=>x.id==id); if(c) hire(c); break; }
-    case 'recruit': { const cost=1500*(tierIdx()+1); S.money-=cost; S.candidates=[]; for(let i=0;i<4+Math.min(4,S.office);i++) S.candidates.push(genAgent(tierIdx())); S.candDay=S.day+7; addLog('İş ilanı yayınlandı, yeni adaylar geldi.'); break; }
-    case 'train': { const a=S.agents.find(x=>x.id==id); if(a&&!a.training){ const c=trainCost(a); S.money-=c; a.training={stat:b.dataset.s,until:S.day+3}; S.stats.trained=(S.stats.trained||0)+1; UI.deskKey=''; addLog(`${a.name} 3 günlük eğitime başladı (${fm(c)}).`); } break; }
+    case 'recruit': { const cost=1500*(tierIdx()+1); S.money-=cost; S.candidates=[]; for(let i=0;i<candN();i++) S.candidates.push(genAgent(tierIdx())); S.candDay=S.day+7; addLog('İş ilanı yayınlandı, yeni adaylar geldi.'); break; }
+    case 'train': { const a=S.agents.find(x=>x.id==id); if(a&&a[b.dataset.s]>=100){ toast(`${a.name} bu yetenekte zaten 100`); break; } if(a&&!a.training){ const c=trainCost(a); S.money-=c; a.training={stat:b.dataset.s,until:S.day+3}; S.stats.trained=(S.stats.trained||0)+1; UI.deskKey=''; addLog(`${a.name} 3 günlük eğitime başladı (${fm(c)}).`); } break; }
     case 'raise': { const a=S.agents.find(x=>x.id==id); if(a){ a.sal=Math.round(a.sal*1.1/50)*50; a.bonus+=18; addLog(`${a.name} zam aldı. Yeni maaş ${fm(a.sal)}.`); } break; }
     case 'sup': { const k=b.dataset.k; S.support[k]=Math.max(0,S.support[k]+ +b.dataset.v); break; }
     case 'pg': UI.pg+= +b.dataset.v; break;
@@ -1995,8 +2029,8 @@ function start(data){
 
 /* =========================== SADE ARAYÜZ: 4 SEKME =========================== */
 const TABS2=[['hub','Merkez','headset'],['team','Ekip','roster'],['grow','Gelişim','tech'],['corp','Şirket','holding']];
-const TABMAP={dash:'hub',goals:'hub',contracts:'hub',market:'hub',events:'hub',roster:'team',hiring:'team',support:'team',tech:'grow',office:'grow',finance:'corp',holding:'corp',ach:'corp',settings:'corp'};
-const ANCHOR={goals:'sec-goals',contracts:'sec-lines',market:'sec-market',events:'sec-advisor',hiring:'sec-hire',support:'sec-support',roster:'sec-roster',tech:'sec-tech',office:'sec-office',finance:'sec-fin',holding:'sec-hold',ach:'sec-ach',settings:'sec-set'};
+const TABMAP={awards:'corp',dash:'hub',goals:'hub',contracts:'hub',market:'hub',events:'hub',roster:'team',hiring:'team',support:'team',tech:'grow',office:'grow',finance:'corp',holding:'corp',ach:'corp',settings:'corp'};
+const ANCHOR={awards:'sec-awards',goals:'sec-goals',contracts:'sec-lines',market:'sec-market',events:'sec-advisor',hiring:'sec-hire',support:'sec-support',roster:'sec-roster',tech:'sec-tech',office:'sec-office',finance:'sec-fin',holding:'sec-hold',ach:'sec-ach',settings:'sec-set'};
 function go(v){
   const t=TABMAP[v]||v, a=ANCHOR[v];
   const SUBS={hiring:['teamSub','hire'],roster:['teamSub','roster'],support:['teamSub','support'],tech:['growSub','tech'],office:['growSub','office']};
@@ -2024,9 +2058,9 @@ function renderNav(){
   UI.view=TABMAP[UI.view]||UI.view;
   const ti=tierIdx(), nx=TIERS[ti+1], b=tabBadges();
   const prog = nx ? clamp((S.rep-TIERS[ti].rep)/(nx.rep-TIERS[ti].rep)*100,0,100) : 100;
-  $('#brandTxt').innerHTML=`<div class="nm">${esc(S.name)}</div><div class="tl">${TIERS[ti].title}<span class="mbar2" title="Sonraki seviye: ${nx?fn(S.rep)+' / '+fn(nx.rep)+' itibar':'zirve'}"><i style="width:${prog}%"></i></span><span class="mono" style="color:var(--dim);letter-spacing:0">${fn(S.rep)}${nx?' / '+fn(nx.rep):''}</span></div>`;
-  $('#tabs').innerHTML=TABS2.map(([id,n,icon])=>`<button class="tab2 ${UI.view===id?'act':''}" data-act="go" data-v="${id}">${ic(icon)}${n}${b[id]||''}</button>`).join('');
-  $('#bnav').innerHTML=TABS2.map(([id,n,icon])=>`<button class="${UI.view===id?'act':''}" data-act="go" data-v="${id}">${ic(icon)}<span>${n}</span>${b[id]?'<i class="rd" style="background:'+(id==='hub'&&S.inbox.length?'var(--bad)':'var(--gold)')+'"></i>':''}</button>`).join('');
+  setH($('#brandTxt'),`<div class="nm">${esc(S.name)}</div><div class="tl">${TIERS[ti].title}<span class="mbar2" title="Sonraki seviye: ${nx?fn(S.rep)+' / '+fn(nx.rep)+' itibar':'zirve'}"><i style="width:${prog}%"></i></span><span class="mono" style="color:var(--dim);letter-spacing:0">${fn(S.rep)}${nx?' / '+fn(nx.rep):''}</span></div>`);
+  setH($('#tabs'),TABS2.map(([id,n,icon])=>`<button class="tab2 ${UI.view===id?'act':''}" data-act="go" data-v="${id}">${ic(icon)}${n}${b[id]||''}</button>`).join(''));
+  setH($('#bnav'),TABS2.map(([id,n,icon])=>`<button class="${UI.view===id?'act':''}" data-act="go" data-v="${id}">${ic(icon)}<span>${n}</span>${b[id]?'<i class="rd" style="background:'+(id==='hub'&&S.inbox.length?'var(--bad)':'var(--gold)')+'"></i>':''}</button>`).join(''));
 }
 
 /* ---------- MERKEZ ---------- */
@@ -2082,7 +2116,7 @@ function offersHTML(){
       <div class="rt"><span class="val">${fm(o.cpd*o.pay*o.dur)}</span><button class="btn pri sm" data-act="accept" data-id="${o.id}" ${full?'disabled':''}>İmzala</button></div></div>`; }).join('');
 }
 function updateHub(){
-  const s=(id,html)=>{ const el=$('#'+id); if(el) el.innerHTML=html; };
+  const s=(id,html)=>setH($('#'+id),html);
   s('sec-advisor',advisorHTML());
   s('sec-lines',linesHTML());
   s('sec-market',offersHTML());
@@ -2102,25 +2136,26 @@ function corpView(){
   const charts=`<div class="charts"><section class="panel chart"><div class="row sp"><div><span class="eyebrow">Günlük kâr · son 60 gün</span><div class="v mono" id="cProfitV">—</div></div></div><svg id="cProfit" viewBox="0 0 300 96" preserveAspectRatio="none"></svg></section>
     <section class="panel chart"><div class="row sp"><div><span class="eyebrow">Servis seviyesi · son 60 gün</span><div class="v mono" id="cSlV">—</div></div></div><svg id="cSl" viewBox="0 0 300 96" preserveAspectRatio="none"></svg></section></div>`;
   const fin=financePage().replace(/<section class="panel chart">[\s\S]*$/,'');
-  return `<div class="jump"><button data-act="go" data-v="finance">Finans</button><button data-act="go" data-v="holding">Holding</button><button data-act="go" data-v="ach">Başarımlar</button><button data-act="go" data-v="settings">Ayarlar</button></div>
+  return `<div class="jump"><button data-act="go" data-v="finance">Finans</button><button data-act="go" data-v="awards">Ödüller</button><button data-act="go" data-v="holding">Holding</button><button data-act="go" data-v="ach">Başarımlar</button><button data-act="go" data-v="settings">Ayarlar</button></div>
+    <div id="sec-awards" class="stack">${awardsHTML()}</div>
     <div id="sec-fin" class="stack">${fin}${charts}</div>
     <div id="sec-hold" class="stack">${holdingPage()}</div>
     <div id="sec-ach" class="stack">${achPage()}</div>
-    <details class="set" id="sec-set" ${UI.setOpen?'open':''}><summary>Ayarlar ve kayıt</summary>${settingsPage()}</details>`;
+    <details class="set" id="sec-set" ${UI.setOpen?'open':''}><summary>Ayarlar ve kayıt</summary><div class="stack" style="padding-bottom:18px">${notifSettingsHTML()}${settingsPage()}</div></details>`;
 }
 function renderView(){
   UI.view=TABMAP[UI.view]||UI.view;
   const v=UI.view, el=$('#view');
   if(v==='hub'){
-    if(UI.rendered!=='hub'){ el.innerHTML=hubSkeleton(); UI.deskKey=''; UI.histLen=-1; UI.logDirty=true; }
+    if(UI.rendered!=='hub'){ el.innerHTML=hubSkeleton(); el._h=null; UI.deskKey=''; UI.histLen=-1; UI.logDirty=true; }
     updateHub();
   } else if(v==='corp'){
     const code=$('#saveCode')?$('#saveCode').value:'', nm=$('#inName')?$('#inName').value:null;
     const det=$('#sec-set'); if(det) UI.setOpen=det.open;
-    el.innerHTML=corpView(); UI.histLen=-1;
+    const ch=corpView(); if(el._h!==ch){ el.innerHTML=ch; el._h=ch; UI.histLen=-1; }
     if(UI.rendered==='corp'){ if($('#saveCode')) $('#saveCode').value=code; if(nm!==null&&$('#inName')) $('#inName').value=nm; }
   } else {
-    el.innerHTML = v==='team'?teamView():growView();
+    setH(el, v==='team'?teamView():growView());
   }
   UI.rendered=v;
 }
@@ -2176,7 +2211,7 @@ const BRANCHES=[
 const BR_MAX=10;
 function branchInc(b,l){ return l? b.inc*Math.pow(l,1.3) : 0; }
 function brMul(b){ return (S.bman||{})[b.id]?1.25:1; }
-function branchIncome(){ let s=0; for(const b of BRANCHES) s+=branchInc(b,(S.branches||{})[b.id]||0)*brMul(b); return s; }
+function branchIncome(){ let s=0; for(const b of BRANCHES) s+=branchInc(b,(S.branches||{})[b.id]||0)*brMul(b); return s*(1+.1*perk('branch')); }
 function branchCost(b){ const l=(S.branches||{})[b.id]||0; return l===0? b.cost : Math.round(b.cost*0.6*Math.pow(1.45,l)/100)*100; }
 function buyBranch(id){
   const b=BRANCHES.find(x=>x.id===id); if(!b) return;
@@ -2203,7 +2238,7 @@ function genRivals(){ const base=[40,130,320,850,2600], g=[.6,1,1.6,2.5,3.7], hu
 function myRank(){ return 1+S.rivals.filter(r=>r.rep>S.rep).length; }
 function rivalsTick(){
   if(!S.rivals) S.rivals=genRivals();
-  for(const r of S.rivals) r.rep+=r.g*(1+S.day/720);
+  for(const r of S.rivals) r.rep+=r.g*(1+S.day/720)*(1-.08*perk('rival'));
   const rk=myRank();
   if(S.bestRank===undefined) S.bestRank=rk;
   if(rk<S.bestRank){ S.bestRank=rk; const gift=niceRound(5000*TIERS[tierIdx()].mult*(7-rk));
@@ -2223,7 +2258,7 @@ function addLoyal(c){ S.loyal=S.loyal||{}; const L=S.loyal[c.co]||{n:0,sector:c.
   if(L.n>was) addLog(`${c.co} sadık müşterin oldu (seviye ${L.n}). Gelecek teklifleri daha kârlı olacak.`,'good'); }
 function adActive(){ return (S.adUntil||0)>S.day; }
 function adCost(){ return niceRound(4000*Math.pow(tierIdx()+1,2.2)); }
-function startAd(){ const c=adCost(); if(S.money<c||adActive()) return; S.money-=c; S.adUntil=S.day+10; const ti=tierIdx();
+function startAd(){ const c=adCost(); if(S.money<c||adActive()) return; S.money-=c; S.adUntil=S.day+10; S.stats.ads=(S.stats.ads||0)+1; const ti=tierIdx();
   for(let i=0;i<2;i++) S.offers.push(genOffer(ti)); S.offerDay=Math.min(S.offerDay,S.day+1);
   addLog(`Reklam kampanyası başladı (${fm(c)}). 10 gün boyunca daha çok ve daha iyi teklif gelecek.`,'good'); toast('Reklam kampanyası başladı'); UI.dirty=true; }
 function genOffer(ti,easy){
@@ -2245,7 +2280,7 @@ function vipTick(now){
   const ok = S && UI.view==='hub' && S.speed>0 && S.contracts.length && S.agents.length && !UI.modalOpen && $('#menu').hidden && S.tut==null;
   if(!ok){ if(UI.vip){ UI.vip.until+=200; } el.hidden=true; return; }
   if(!UI.vip && now>UI.vipNext){ UI.vip={until:now+12000,i:RI(0,S.agents.length-1)}; }
-  if(UI.vip && now>UI.vip.until){ UI.vip=null; UI.vipNext=now+R(40000,80000); }
+  if(UI.vip && now>UI.vip.until){ UI.vip=null; UI.vipNext=now+R(40000,80000); S.stats.vipMiss=(S.stats.vipMiss||0)+1; checkAch(); }
   if(UI.vip){ el.hidden=false;
     if(!el.dataset.built){ el.innerHTML=`<span class="vring"></span>${ic('phone',2)}<span><b>VIP çağrı geliyor!</b><span class="mini">Yanıtlamak için dokun · <span id="vipSec"></span> sn</span></span>`; el.dataset.built='1'; }
     const sc=$('#vipSec'); if(sc) sc.textContent=Math.ceil((UI.vip.until-now)/1000);
@@ -2256,9 +2291,9 @@ function answerVip(){
   if(!UI.vip) return; UI.vip=null; UI.vipNext=performance.now()+R(40000,80000);
   const ti=tierIdx(), dayRev=Math.max(1500,(UI.live?UI.live.rev:0));
   const r=Math.random(); let msg;
-  if(r<.45){ const m=niceRound(dayRev*1.5); S.money+=m; S.stats.earned+=m; msg=`+${fm(m)}`; }
-  else if(r<.7){ const p=Math.max(5,Math.round(dayRev/250)); S.rp+=p; msg=`+${p} AR-GE`; }
-  else if(r<.88){ const x=Math.max(2,Math.round(2*TIERS[ti].mult)); S.rep+=x; msg=`+${x} itibar`; }
+  if(r<.45){ const vb=1+.25*perk('vip'); const m=niceRound(dayRev*1.5*vb); S.money+=m; S.stats.earned+=m; msg=`+${fm(m)}`; }
+  else if(r<.7){ const p=Math.max(5,Math.round(dayRev/250*(1+.25*perk('vip')))); S.rp+=p; msg=`+${p} AR-GE`; }
+  else if(r<.88){ const x=Math.max(2,Math.round(2*TIERS[ti].mult*(1+.25*perk('vip')))); S.rep+=x; msg=`+${x} itibar`; }
   else { S.agents.forEach(a=>a.bonus+=8); msg='ekip morali +8'; }
   S.stats.vip=(S.stats.vip||0)+1;
   addLog(`VIP müşteri çok memnun kaldı: ${msg}.`,'good'); toast(`VIP çağrı yanıtlandı: ${msg}`); checkAch(); UI.dirty=true;
@@ -2398,7 +2433,7 @@ function agentDetail(a){
     <div><div class="row sp mini" style="margin-bottom:5px"><span>Deneyim</span><span class="mono">${fn(a.xp)} / ${fn(need)}</span></div><div class="prog"><i style="width:${Math.min(100,a.xp/need*100)}%"></i></div></div>
     <div class="bstats">${big('Hız',a.spd,'Günde kaç çağrı alır')}${big('Empati',a.emp,'Müşteri memnuniyeti')}${big('Bilgi',a.kno,'İlk temasta çözüm')}</div>
     <div class="spec"><div><span>Kapasite</span><b>${Math.round(agentCap(a,E))} çağrı/gün</b></div><div><span>Maaş</span><b>${fm(a.sal)}/ay</b></div><div><span>Moral</span><b class="${a.morale<40?'bad':'good'}">${Math.round(a.morale)}</b></div><div><span>Yorgunluk</span><b class="${a.fat>60?'bad':''}">${Math.round(a.fat)}</b></div><div><span>Bu ay çağrı</span><b>${fn(a.mx||0)}</b></div><div><span>Çalıştığı gün</span><b>${a.hired!=null?Math.floor(S.day-a.hired):'—'}</b></div></div>
-    <div class="actgroup"><span class="eyebrow">Eğitim · 3 gün · ${fm(tc)}</span><div class="seg wide">${[['spd','Hız'],['emp','Empati'],['kno','Ürün bilgisi']].map(([k,n])=>`<button data-act="train" data-id="${a.id}" data-s="${k}" ${busy||S.money<tc?'disabled':''}>${n} +6–10</button>`).join('')}</div></div>
+    <div class="actgroup"><span class="eyebrow">Eğitim · 3 gün · ${fm(tc)}</span><div class="seg wide">${[['spd','Hız'],['emp','Empati'],['kno','Ürün bilgisi']].map(([k,n])=>(a[k]>=100?`<button disabled title="Bu yetenek zaten en üst seviyede">${n} ✓ 100</button>`:`<button data-act="train" data-id="${a.id}" data-s="${k}" ${busy||S.money<tc?'disabled':''}>${n} +6–10</button>`)).join('')}</div></div>
     <div class="actgroup"><span class="eyebrow">Uzmanlık eğitimi · 5 gün · ${fm(specCost)}</span><div class="row" style="gap:6px;flex-wrap:nowrap"><select id="specSel" aria-label="Uzmanlık sektörü" ${busy?'disabled':''}>${secs.map(s=>`<option value="${s.id}" ${a.spec===s.id?'selected':''}>${s.n}</option>`).join('')}</select><button class="btn sm" data-act="specTrain" data-id="${a.id}" ${busy||S.money<specCost?'disabled':''}>Başlat</button></div><span class="mini">Aynı sektördeki sözleşmelerde ilk temasta çözüm artar.</span></div>
     <div class="row" style="gap:6px"><button class="btn sm" data-act="arest" data-id="${a.id}" ${busy||a.fat<10?'disabled':''} title="1 gün dinlenir, yorgunluk sıfırlanır">Mola ver</button><button class="btn sm" data-act="raise" data-id="${a.id}" title="Maaş +%10, moral artar">Zam yap (+%10)</button>${cbtn('fire:'+a.id,'İşten çıkar','danger')}</div>
   </aside>`;
@@ -2408,7 +2443,7 @@ function rosterSub(){
   if(!list.find(a=>a.id===UI.asel)) UI.asel=(list[0]||S.agents[0]||{}).id;
   const per=10, pages=Math.max(1,Math.ceil(list.length/per)); UI.pg=clamp(UI.pg,0,pages-1);
   const shown=list.slice(UI.pg*per,UI.pg*per+per);
-  const idle=list.filter(a=>!a.training), costAll=idle.filter(a=>a.fat<=60).reduce((s,a)=>s+trainCost(a),0);
+  const idle=list.filter(a=>!a.training), costAll=idle.filter(a=>a.fat<=60&&Math.min(a.spd,a.emp,a.kno)<100).reduce((s,a)=>s+trainCost(a),0);
   const raiseAll=Math.round(idle.reduce((s,a)=>s+a.sal*.1,0));
   const sel=S.agents.find(a=>a.id===UI.asel);
   return `<div class="tw">
@@ -2465,7 +2500,7 @@ function growView(){
 /* --- Eylemler --- */
 function bulkAction(k){
   const list=rosterList().filter(a=>!a.training); let n=0, cost=0;
-  if(k==='train'){ for(const a of list){ if(a.fat>60) continue; const c=trainCost(a); if(S.money<c) break; const st=['spd','emp','kno'].sort((x,y)=>a[x]-a[y])[0]; S.money-=c; cost+=c; a.training={stat:st,until:S.day+3}; S.stats.trained=(S.stats.trained||0)+1; n++; } toast(n?`${n} kişi eğitime başladı (${fm(cost)})`:'Uygun kimse yok'); }
+  if(k==='train'){ for(const a of list){ if(a.fat>60) continue; const st=['spd','emp','kno'].sort((x,y)=>a[x]-a[y])[0]; if(a[st]>=100) continue; const c=trainCost(a); if(S.money<c) break; S.money-=c; cost+=c; a.training={stat:st,until:S.day+3}; S.stats.trained=(S.stats.trained||0)+1; n++; } toast(n?`${n} kişi eğitime başladı (${fm(cost)})`:'Uygun kimse yok'); }
   else if(k==='rest'){ for(const a of list) if(a.fat>=10){ a.training={stat:'rest',until:S.day+1}; n++; } toast(n?`${n} kişi 1 günlük molaya çıktı`:'Molaya ihtiyacı olan yok'); }
   else if(k==='raise'){ for(const a of list){ a.sal=Math.round(a.sal*1.1/50)*50; a.bonus+=18; n++; } toast(`${n} kişiye %10 zam yapıldı`); }
   if(n) addLog(k==='train'?`${n} temsilci toplu eğitime gönderildi.`:k==='rest'?`${n} temsilci molaya çıktı.`:`${n} temsilciye zam yapıldı.`);
@@ -2482,7 +2517,7 @@ document.addEventListener('click',e=>{
   else if(a==='arest'){ const x=S.agents.find(q=>q.id==id); if(x&&!x.training){ x.training={stat:'rest',until:S.day+1}; UI.deskKey=''; toast(`${x.name} 1 günlük molaya çıktı`); } }
   else if(a==='specTrain'){ const x=S.agents.find(q=>q.id==id), sec=$('#specSel')&&$('#specSel').value, c=niceRound(trainCost(x)*2.5);
     if(x&&!x.training&&sec&&S.money>=c){ S.money-=c; x.training={stat:'spec',spec:sec,until:S.day+5}; S.stats.trained=(S.stats.trained||0)+1; UI.deskKey=''; addLog(`${x.name} ${secName(sec)} uzmanlık eğitimine başladı (${fm(c)}).`); toast('Uzmanlık eğitimi başladı'); } }
-  else if(a==='recruitP'){ const ti=tierIdx(), c=6000*(ti+1); if(S.money>=c){ S.money-=c; S.candidates=[]; for(let i=0;i<4+Math.min(4,S.office);i++){ const g=genAgent(ti); for(const k of ['spd','emp','kno']) g[k]=Math.min(95,g[k]+RI(6,12)); g.sal=Math.round((3000+(g.spd+g.emp+g.kno)*22)/100)*100; S.candidates.push(g); } S.candDay=S.day+7; addLog('Premium ilan yayınlandı, yetenekli adaylar geldi.','good'); toast('Premium adaylar geldi'); } }
+  else if(a==='recruitP'){ const ti=tierIdx(), c=6000*(ti+1); if(S.money>=c){ S.money-=c; S.candidates=[]; for(let i=0;i<candN();i++){ const g=genAgent(ti); for(const k of ['spd','emp','kno']) g[k]=Math.min(95,g[k]+RI(6,12)); g.sal=Math.round((3000+(g.spd+g.emp+g.kno)*22)/100)*100; S.candidates.push(g); } S.candDay=S.day+7; addLog('Premium ilan yayınlandı, yetenekli adaylar geldi.','good'); toast('Premium adaylar geldi'); } }
   else if(a==='branchAll'){ let n=0; for(let i=0;i<20;i++){ const ti=tierIdx(); const c=BRANCHES.filter(x=>ti>=x.t&&(S.branches[x.id]||0)<BR_MAX&&S.money>=branchCost(x)).sort((x,y)=>branchCost(x)-branchCost(y))[0]; if(!c) break; S.money-=branchCost(c); S.branches[c.id]=(S.branches[c.id]||0)+1; n++; } if(n){ addLog(`${n} şube geliştirmesi yapıldı.`,'good'); toast(`${n} şube geliştirildi`); checkAch(); } }
   else if(a==='prio'){ const c=S.contracts.find(q=>q.id==id); if(c){ c.prio=!c.prio; toast(c.prio?`${c.co} öncelikli hat oldu`:`${c.co} normal önceliğe döndü`); } }
   else return;
@@ -2555,7 +2590,7 @@ function branchesHTML2(){
   <section class="panel"><div class="ph"><div><span class="eyebrow">Pasif gelir · sen yokken de çalışır</span><h2>Şehirler</h2></div><div class="row" style="gap:6px"><span class="pill gold">+${fm(tot)}/gün</span><span class="pill">${own.length}/${BRANCHES.length} şube</span><span class="pill">Yatırım ${fm(invested)}</span>${invested&&tot?`<span class="pill">Geri dönüş ${Math.ceil(invested/tot)} gün</span>`:''}</div></div>
     <div class="brs">${BRANCHES.map(b=>{ const l=S.branches[b.id]||0, lock=ti<b.t, c=branchCost(b), can=!lock&&l<BR_MAX&&S.money>=c, man=(S.bman||{})[b.id], mc=manCost(b);
       const gain=(branchInc(b,l+1)-branchInc(b,l))*rv*brMul(b), pay=gain>0?Math.ceil(c/gain):0;
-      return `<div class="br ${l?'own':''} ${lock?'locked':''}"><div class="row sp"><div style="min-width:0"><b>${b.n}</b><span class="mini">${b.r}${man?' · <span class="gold">müdürlü</span>':''}</span></div>${l?`<span class="pill gold">Sv ${l}</span>`:lock?`<span class="pill">${ic('lock',2)}</span>`:'<span class="pill green">Açılabilir</span>'}</div>
+      return `<div class="br ${l?'own':''} ${lock?'locked':''}">${cityArt(b,l,lock)}<div class="row sp"><div style="min-width:0"><b>${b.n}</b><span class="mini">${b.r}${man?' · <span class="gold">müdürlü</span>':''}</span></div>${l?`<span class="pill gold">Sv ${l}</span>`:lock?`<span class="pill">${ic('lock',2)}</span>`:'<span class="pill green">Açılabilir</span>'}</div>
         <div class="lvd">${Array.from({length:BR_MAX},(_,i)=>`<i class="${i<l?'on':''}"></i>`).join('')}</div>
         <div class="spec" style="grid-template-columns:1fr"><div><span>Şu an</span><b class="${l?'gold':''}">${l?'+'+fm(branchInc(b,l)*rv*brMul(b)):'—'}/gün</b></div>${l<BR_MAX&&!lock?`<div><span>${l?'Geliştirince':'Açınca'}</span><b class="good">+${fm(gain)}/gün</b></div><div><span>Kendini öder</span><b>${pay} gün</b></div>`:''}</div>
         ${lock?`<button class="btn sm" disabled>${TIERS[b.t].title} gerekir</button>`:l>=BR_MAX?'<button class="btn sm" disabled>En üst seviye</button>':`<button class="btn sm ${can?'pri':''}" data-act="branch" data-id="${b.id}" ${can?'':'disabled'}>${l?'Geliştir':'Şube aç'} · ${fm(c)}</button>`}
@@ -2604,6 +2639,268 @@ document.addEventListener('click',e=>{
   else return;
   UI.dirty=true;
 });
+
+/* =========================== TIKLAMA GÜVENİLİRLİĞİ & BİLDİRİMLER =========================== */
+function setH(el,h){ if(el && el._h!==h){ el.innerHTML=h; el._h=h; } }
+/* Basılı tutulan bir düğme yeniden çizilirse tarayıcı tıklamayı saymaz.
+   Bu yüzden parmak/fare basılıyken ekranı yeniden çizmiyoruz. */
+let HOLD=0;
+document.addEventListener('pointerdown',()=>{ HOLD=performance.now(); },true);
+['pointerup','pointercancel','dragend'].forEach(ev=>document.addEventListener(ev,()=>{ setTimeout(()=>{ HOLD=0; if(typeof UI!=='undefined'){ UI.dirty=true; try{ if(S) loop(); }catch(e){} } },60); },true));
+const held=()=>HOLD && performance.now()-HOLD<4000;
+{ const _rv=renderView, _uh=updateHub, _rn=renderNav;
+  renderView=function(){ if(held() && UI.rendered===(TABMAP[UI.view]||UI.view)) return; _rv(); };
+  updateHub=function(){ if(held()) return; _uh(); };
+  renderNav=function(){ if(held()) return; _rn(); };
+}
+
+/* --- Bildirim ayarı: all = hepsi, imp = yalnızca önemliler, off = kapalı --- */
+const NOTIF=[['all','Tüm bildirimler'],['imp','Yalnızca önemliler'],['off','Kapalı']];
+const IMPORTANT=/Başarım|seviye|Karar|VIP|Ayın çalışanı|ödül|Ödül|rozet|Rozet|iflas|Sıralama|Eğitim tamamlandı|Eğitim atlandı/;
+toast=function(t,force){
+  const mode=(S&&S.notif)||'imp';
+  if(!force){ if(mode==='off') return; if(mode==='imp' && !IMPORTANT.test(t)) return; }
+  const box=$('#toasts'); if(!box) return;
+  if([...box.children].some(c=>c.textContent===t)) return;            // aynı mesajı tekrar gösterme
+  const el=document.createElement('div'); el.className='toast'; el.textContent=t; box.appendChild(el);
+  while(box.children.length>2) box.firstChild.remove();
+  setTimeout(()=>el.remove(),3000);
+};
+const _reviewCard=reviewCard;
+reviewCard=function(m){
+  if(S && S.cards===false) return;
+  const box=$('#cards'); if(box) box.innerHTML='';
+  _reviewCard(m);
+  if(box && box.firstChild){ const c=box.firstChild; c.title='Kapatmak için dokun'; setTimeout(()=>c.classList.add('out'),5500); setTimeout(()=>c.remove(),6100); }
+};
+function notifCycle(){ const i=NOTIF.findIndex(x=>x[0]===(S.notif||'imp')); S.notif=NOTIF[(i+1)%NOTIF.length][0]; toast(`Bildirimler: ${NOTIF.find(x=>x[0]===S.notif)[1]}`,true); if(S.notif==='off'){ const c=$('#cards'); if(c) c.innerHTML=''; } updBell(); UI.dirty=true; }
+function updBell(){ const b=$('#bellBtn'); if(!b||!S) return; const m=S.notif||'imp';
+  b.dataset.mode=m; b.title=`Bildirimler: ${NOTIF.find(x=>x[0]===m)[1]} (değiştirmek için dokun)`; b.setAttribute('aria-label',b.title); }
+document.addEventListener('click',e=>{
+  const card=e.target.closest('.rcard'); if(card){ card.remove(); return; }
+  const b=e.target.closest('[data-act]'); if(!b||!S) return;
+  const a=b.dataset.act;
+  if(a==='bell') notifCycle();
+  else if(a==='notif'){ S.notif=b.dataset.v; updBell(); UI.dirty=true; }
+  else if(a==='cardsTog'){ S.cards=!(S.cards!==false); if(!S.cards){ const c=$('#cards'); if(c) c.innerHTML=''; } UI.dirty=true; }
+});
+function notifSettingsHTML(){
+  const m=S.notif||'imp';
+  return `<section class="panel"><div class="ph"><div><span class="eyebrow">Ekranda ne kadar bildirim çıksın?</span><h2>Bildirimler</h2></div></div>
+    <div class="seg wide" role="group" aria-label="Bildirim düzeyi" style="margin-bottom:12px">${NOTIF.map(([k,n])=>`<button class="${m===k?'on':''}" data-act="notif" data-v="${k}">${n}</button>`).join('')}</div>
+    <p class="mini" style="margin-bottom:12px">Önemliler: başarımlar, seviye atlama, ödüller, kararlar, VIP çağrılar. Hepsi olay akışına her zaman yazılır.</p>
+    <label class="tog" style="border:0"><input type="checkbox" data-act="cardsTog" ${S.cards!==false?'checked':''}><span>Sözleşme bitince köşede karne kartı göster <span class="mini">· karta dokunarak kapatabilirsin</span></span></label></section>`;
+}
+{ const _rt=renderTop; renderTop=function(){ _rt(); const b=$('#bellBtn'); if(b&&S&&b.dataset.mode!==(S.notif||'imp')) updBell(); }; }
+
+/* =========================== İÇERİK 2: AVANTAJLAR, İSİMLER, HEDEFLER, ÖDÜLLER, GİZLİ ROZETLER, ŞEHİRLER =========================== */
+/* --- Halka arz avantajları: daha fazla seçenek, daha yüksek sınırlar --- */
+for(const p of PERKS){ if(p.id==='angel') p.max=25; if(p.id==='brand') p.max=20; if(p.id==='mentor') p.max=10; if(p.id==='lab') p.max=20; if(p.id==='hq') p.max=3; }
+PERKS.push(
+  {id:'talent',n:'Yetenek Ağı',d:'Aday havuzunda +1 aday.',cost:2,max:4},
+  {id:'vip',n:'VIP Rehberi',d:'VIP çağrı ödülleri +%25.',cost:2,max:8},
+  {id:'branch',n:'Franchise Bilgisi',d:'Şube geliri +%10.',cost:3,max:10},
+  {id:'trainer',n:'İç Akademi',d:'Eğitim maliyeti −%8.',cost:2,max:6},
+  {id:'rival',n:'Pazar Hâkimiyeti',d:'Rakiplerin büyümesi −%8.',cost:3,max:5},
+  {id:'lines',n:'Çağrı Altyapısı',d:'+1 sözleşme hattı.',cost:5,max:3},
+  {id:'offline',n:'Gece Vardiyası',d:'Sen yokken ilerleme sınırı +60 gün.',cost:2,max:4},
+);
+function candN(){ return 4+Math.min(4,S.office)+perk('talent'); }
+
+/* --- Gerçek markalardan esinlenen parodi şirket adları --- */
+const PARODY={
+  yemek:['Yemekkovası','Götür Kurye','Acıktım.com','Tıkla Gelsin Pide','Paket Usta'],
+  kargo:['Yurtdışı Kargo','Arasıra Kargo','TTP Kargo','Sürat Değil Kargo','Kapına Geldik Lojistik'],
+  eticaret:['Modayol','Hepsişurada','n12','Çiçekmarket','Geldi Gidiyor'],
+  saglik:['Tatlıbadem Hastaneleri','Hatıra Sağlık','Medikal Bahçe','Bülbül Hastanesi'],
+  sigorta:['Rumeli Sigorta','Alyans Sigorta','Karasigorta','Garantisiz Emeklilik'],
+  enerji:['Enerjiyok','Çok Gaz','Torosaltı Elektrik','Aydınlık Değil Enerji'],
+  telekom:['Türkhücre','Sesfon','Türk Telgraf','Hiperonline'],
+  banka:['Meşgul Bankası','Garantisiz Bank','Karabank','Tarla Bankası','Yıkım Kredi'],
+  otomotiv:['Fort Otosan','Tofiş','Tıngır Otomobil','Dört Teker Motor'],
+  havayolu:['Türk Kanatları','Pegaz Hava Yolları','AyExpress','AnadoluKartal'],
+  oyun:['Vadi Games','Yuvarlanan Games','Kâbus Games','Zirve Altı Studios'],
+  teknoloji:['Nilazon','Elma Teknoloji','Makrosoft','Öte Platformları','Alfabe Bulut'],
+};
+{ const _gob=genOfferBase;
+  genOfferBase=function(ti,easy){
+    const o=_gob(ti,easy); const list=PARODY[o.sector]||[];
+    const used=new Set([...(S.offers||[]),...(S.contracts||[])].map(x=>x.co));
+    const free=list.filter(n=>!used.has(n));
+    if(free.length && Math.random()<.8) o.co=pick(free);
+    return o;
+  };
+}
+
+/* --- Hedefler: daha çok çeşit, yakın zamanda çıkanlar tekrar etmez --- */
+function avgMorale(){ const n=S.agents.length; return n? S.agents.reduce((s,a)=>s+a.morale,0)/n : 0; }
+function maxLvl(){ return S.agents.reduce((m,a)=>Math.max(m,a.lvl),0); }
+function sumLv(o){ return Object.values(o||{}).reduce((s,v)=>s+(+v||0),0); }
+goalCounter=function(t){ const s=S.stats;
+  switch(t){
+    case 'answer':return s.answered; case 'earn':return s.earned; case 'done':return s.done; case 'good7':return s.good7||0;
+    case 'hired':return s.hired||0; case 'trained':return s.trained||0; case 'tech':return Object.keys(S.techs).length; case 'vip':return s.vip||0;
+    case 'sign':return s.signed; case 'rests':return s.rests||0; case 'specs':return s.specs||0; case 'ads':return s.ads||0;
+    case 'repgain':return S.rep; case 'branch':return sumLv(S.branches); case 'upg':return sumLv(S.upg);
+    case 'lvl':return maxLvl(); case 'morale':return Math.round(avgMorale()); case 'cash':return Math.floor(S.money);
+  } return 0; };
+goalProg=function(g){
+  if(g.kind==='state'){ if(!g.hit){ g.hit=S.hist.some(h=>h.d>=g.born && h.calls>5 && ((g.t==='slday'&&h.sl!=null&&h.sl>=g.th)||(g.t==='fcrday'&&h.fcr>=g.th)||(g.t==='csday'&&h.cs!=null&&h.cs>=g.th))); } return g.hit?1:0; }
+  if(g.kind==='abs') return clamp(goalCounter(g.t),0,g.target);
+  return clamp(goalCounter(g.t)-g.base,0,g.target);
+};
+goalOptions=function(){
+  const ti=tierIdx(), cap=Math.max(40,UI.live?UI.live.cap:45), pay=(TIERS[ti].pay[0]+TIERS[ti].pay[1])/2, M=TIERS[ti].mult;
+  const dayRev=cap*0.8*pay, L=UI.live||{};
+  const o=[
+    {t:'answer',n:x=>`${fn(x)} çağrı yanıtla`,target:niceRound(cap*0.8*4),r:{money:niceRound(dayRev*1.2)}},
+    {t:'earn',n:x=>`${fm(x)} ciro yap`,target:niceRound(dayRev*5),r:{money:niceRound(dayRev*1.5)}},
+    {t:'trained',n:x=>`${x} eğitim başlat`,target:2,r:{rp:12*(ti+1)}},
+    {t:'vip',n:()=>'Bir VIP çağrıyı yanıtla',target:1,r:{money:niceRound(dayRev)}},
+    {t:'sign',n:()=>'Yeni bir sözleşme imzala',target:1,r:{rep:Math.round(2*M),money:niceRound(dayRev*.6)}},
+    {t:'repgain',n:x=>`${fn(x)} itibar kazan`,target:Math.max(5,Math.round(10*M)),r:{money:niceRound(dayRev*2)}},
+    {t:'slday',kind:'state',th:S.contracts.length?Math.min(95,Math.max(75,Math.round((L.sl||80)/5)*5+5)):85,n:g=>`Bir günü %${g.th} servis seviyesiyle kapat`,target:1,r:{rep:Math.round(4*M),money:niceRound(dayRev)}},
+    {t:'fcrday',kind:'state',th:Math.min(92,Math.max(55,Math.round(((L.fcr||.6)*100)/5)*5+5)),n:g=>`Bir günde %${g.th} ilk temasta çözüm`,target:1,r:{rp:15*(ti+1),money:niceRound(dayRev*.8)}},
+    {t:'csday',kind:'state',th:Math.min(92,Math.max(60,Math.round((L.csat||65)/5)*5+5)),n:g=>`Bir günde %${g.th} müşteri memnuniyeti`,target:1,r:{rep:Math.round(4*M)}},
+    {t:'rests',n:x=>`${x} yorgun temsilciyi dinlendir`,target:2,r:{money:niceRound(dayRev*.8)}},
+    {t:'upg',n:()=>'Bir ofis donanımı al',target:1,r:{money:niceRound(dayRev*1.2)}},
+  ];
+  if(S.contracts.length){ o.push({t:'done',n:()=>'Bir sözleşmeyi tamamla',target:1,r:{money:niceRound(dayRev*1.5),rep:Math.round(3*M)}});
+    o.push({t:'good7',n:()=>'Bir sözleşmeyi 7+ karneyle bitir',target:1,r:{rep:Math.round(6*M),rp:10*(ti+1)}}); }
+  if(S.agents.length<office().seats) o.push({t:'hired',n:()=>'Bir temsilci işe al',target:1,r:{money:niceRound(dayRev)}});
+  if(TECHS.some(t=>!has(t.id)&&t.req.every(has)&&S.rp>=t.rp*0.6&&S.money>=t.m*0.5)) o.push({t:'tech',n:()=>'Bir teknoloji geliştir',target:1,r:{money:niceRound(dayRev*2)}});
+  if(S.agents.length){ const ml=maxLvl(); o.push({t:'lvl',kind:'abs',n:x=>`Bir temsilciyi seviye ${x}'e çıkar`,target:ml+1,r:{rp:10*(ti+1),money:niceRound(dayRev)}});
+    const am=Math.round(avgMorale()); if(am<85) o.push({t:'morale',kind:'abs',n:x=>`Ekibin ortalama moralini ${x}'e çıkar`,target:Math.min(90,Math.max(60,Math.round(am/5)*5+10)),r:{money:niceRound(dayRev*1.2)}});
+    o.push({t:'specs',n:()=>'Bir temsilciye uzmanlık eğitimi ver',target:1,r:{rp:12*(ti+1)}}); }
+  if(ti>=1) o.push({t:'branch',n:()=>'Bir şube aç ya da geliştir',target:1,r:{money:niceRound(dayRev*2.5)}});
+  if(!adActive()) o.push({t:'ads',n:()=>'Bir reklam kampanyası başlat',target:1,r:{rep:Math.round(3*M)}});
+  if(S.money>0) o.push({t:'cash',kind:'abs',n:x=>`Kasada ${fm(x)} biriktir`,target:niceRound(Math.max(20000,S.money*1.6)),r:{rep:Math.round(3*M),rp:8*(ti+1)}});
+  return o;
+};
+newGoal=function(){
+  S.goalRecent=S.goalRecent||[];
+  const have=new Set((S.goals||[]).map(g=>g.t));
+  const all=goalOptions();
+  let opts=all.filter(o=>!have.has(o.t)&&!S.goalRecent.includes(o.t));
+  if(!opts.length) opts=all.filter(o=>!have.has(o.t)); if(!opts.length) opts=all;
+  const o=pick(opts);
+  const g={id:S.nid++,t:o.t,kind:o.kind||'delta',th:o.th,target:o.target,r:o.r,claimed:false,until:S.day+GOAL_DAYS,born:Math.floor(S.day)};
+  g.label=o.n(o.kind==='state'?o:o.target);
+  g.base=g.kind==='delta'?goalCounter(o.t):0;
+  S.goalRecent.push(o.t); if(S.goalRecent.length>7) S.goalRecent.shift();
+  return g;
+};
+
+/* --- Sektör ödülleri: her 90 günde bir tören --- */
+const AWARD_DAYS=90;
+const AWARDS=[
+  {id:'cx',n:'En İyi Müşteri Deneyimi',m:'Ortalama memnuniyet',base:68,step:2,unit:'%'},
+  {id:'fcr',n:'İlk Temasta Çözüm Ödülü',m:'Ortalama ilk temasta çözüm',base:58,step:2.5,unit:'%'},
+  {id:'sl',n:'En Hızlı Yanıt Ödülü',m:'Ortalama servis seviyesi',base:78,step:1.5,unit:'%'},
+  {id:'emp',n:'Yılın İşvereni',m:'Ortalama ekip morali',base:60,step:1.5,unit:''},
+  {id:'grow',n:'En Hızlı Büyüyen Merkez',m:'Dönemde kazanılan itibar',base:0,step:0,unit:''},
+];
+function awInit(){ const ti=tierIdx(); S.aw={start:Math.floor(S.day),rep0:S.rep,sl:0,fcr:0,cs:0,mor:0,n:0,
+  th:Object.fromEntries(AWARDS.filter(a=>a.id!=='grow').map(a=>[a.id,Math.round(a.base+a.step*ti+R(-3,3))])),
+  riv:Object.fromEntries(AWARDS.map(a=>[a.id,pick(S.rivals||[{n:'Rakip'}]).n])),
+  growTh:Math.round(Math.max(...(S.rivals||[{g:1}]).map(r=>r.g))*AWARD_DAYS*(1+S.day/720)*(1-.08*perk('rival'))*R(.9,1.15)) }; }
+function awScores(){ const a=S.aw||{}; const n=Math.max(1,a.n);
+  return {cx:a.cs/n, fcr:a.fcr/n, sl:a.sl/n, emp:a.mor/n, grow:S.rep-(a.rep0||0)}; }
+function awThr(id){ return id==='grow'?S.aw.growTh:S.aw.th[id]; }
+function awardsTick(){
+  if(!S.aw) awInit();
+  const h=S.hist[S.hist.length-1];
+  if(h && h.calls>5){ S.aw.sl+=h.sl||0; S.aw.fcr+=h.fcr||0; S.aw.cs+=h.cs||0; S.aw.mor+=avgMorale(); S.aw.n++; }
+  if(Math.floor(S.day)-S.aw.start>=AWARD_DAYS) ceremony();
+}
+function ceremony(){
+  const sc=awScores(), ti=tierIdx(), M=TIERS[ti].mult, q=Math.floor(S.day/AWARD_DAYS);
+  const label=`${['Kış','Bahar','Yaz','Güz'][(q-1)%4]} Dönemi · Yıl ${Math.floor((S.day-1)/360)+1}`;
+  const res=AWARDS.map(a=>{ const thr=awThr(a.id), me=sc[a.id]; const win=S.aw.n>=10 && me>=thr; return {a,me,thr,win,riv:S.aw.riv[a.id]}; });
+  const wins=res.filter(r=>r.win); const money=niceRound(8000*M)*wins.length, rep=Math.round(8*M)*wins.length;
+  S.money+=money; S.rep+=rep; S.trophies=S.trophies||[];
+  wins.forEach(r=>S.trophies.push({id:r.a.id,n:r.a.n,label,d:Math.floor(S.day)}));
+  S.stats.awards=(S.stats.awards||0)+wins.length; if(wins.length===AWARDS.length) S.flags=Object.assign(S.flags||{},{sweep:true});
+  addLog(wins.length?`Sektör ödülleri (${label}): ${wins.length} ödül kazandın! +${fm(money)}, +${rep} itibar.`:`Sektör ödülleri (${label}): bu dönem ödül çıkmadı.`, wins.length?'good':'');
+  if(!OFFLINE) queueModal({type:'awards',res,label,money,rep});
+  awInit(); checkAch(); UI.dirty=true;
+}
+function awardsModalHTML(m){
+  return `<span class="eyebrow" style="color:var(--gold-2)">Sektör ödül töreni</span><h2>${m.label}</h2>
+    <div class="awl">${m.res.map(r=>`<div class="awr ${r.win?'win':''}"><span class="tro">${ic(r.win?'ach':'star',2)}</span><div style="min-width:0;flex:1"><b>${r.a.n}</b><span class="mini">${r.a.m}: sen <b class="${r.win?'good':''}">${fn(Math.round(r.me))}${r.a.unit}</b> · ${r.win?'jürinin eşiği':esc(r.riv)} ${fn(Math.round(r.thr))}${r.a.unit}</span></div><span class="tag ${r.win?'gold':''}">${r.win?'Kazandın':esc(r.riv)}</span></div>`).join('')}</div>
+    ${m.res.filter(r=>r.win).length?`<div class="spec"><div><span>Ödül parası</span><b class="gold">+${fm(m.money)}</b></div><div><span>İtibar</span><b class="good">+${m.rep}</b></div></div>`:`<p class="lead">Bu dönem ödül çıkmadı. Bir sonraki tören ${AWARD_DAYS} gün sonra.</p>`}
+    <button class="btn pri" data-act="closeModal">Devam</button>`;
+}
+function awardsHTML(){
+  if(!S.aw) awInit();
+  const sc=awScores(), left=Math.max(0,AWARD_DAYS-(Math.floor(S.day)-S.aw.start)), enough=S.aw.n>=10;
+  const T=S.trophies||[];
+  return `<section class="panel"><div class="ph"><div><span class="eyebrow">Sonraki tören ${left} gün sonra</span><h2>Sektör ödülleri</h2></div><span class="pill gold">${T.length} kupa</span></div>
+    <p class="mini" style="margin:-4px 0 12px">Her ${AWARD_DAYS} günde bir jüri, dönem ortalamana bakar. Eşiği geçtiğin her kategori için para ve itibar kazanırsın.${enough?'':' Aday olmak için dönemde en az 10 gün çağrı karşılamalısın.'}</p>
+    <div class="awl">${AWARDS.map(a=>{ const me=sc[a.id], thr=awThr(a.id), ok=me>=thr, p=thr>0?clamp(me/thr*100,0,100):0;
+      return `<div class="awr ${ok&&enough?'win':''}"><span class="tro">${ic('ach',2)}</span><div style="min-width:0;flex:1"><div class="row sp"><b>${a.n}</b><span class="mini mono">${fn(Math.round(me))}${a.unit} / ${fn(Math.round(thr))}${a.unit}</span></div><div class="prog" style="margin-top:5px"><i style="width:${p}%;${ok?'background:linear-gradient(90deg,var(--gold-deep),var(--gold))':''}"></i></div><span class="mini">${a.m} · rakip aday: ${esc(S.aw.riv[a.id])}</span></div></div>`; }).join('')}</div>
+    ${T.length?`<div class="cabinet"><span class="eyebrow">Kupa dolabı</span><div class="cups">${T.slice(-24).reverse().map(t=>`<div class="cup" title="${esc(t.n)} · ${esc(t.label)}">${ic('ach',1.8)}<span>${esc(t.n.replace(' Ödülü',''))}</span><small>${esc(t.label)}</small></div>`).join('')}</div></div>`:''}</section>`;
+}
+
+/* --- Gizli rozetler --- */
+const SECRET=[
+  ['flip','Kararsız Patron','Aynı gün içinde bir temsilciye hem zam yap hem de onu işten çıkar.',s=>!!(s.flags||{}).flip],
+  ['eomfire','Nankör Patron','Ayın çalışanını işten çıkar.',s=>!!(s.flags||{}).eomfire],
+  ['night','Gece Kuşu','Oyunu gece 00:00 ile 05:00 arasında oyna.',s=>!!(s.flags||{}).night],
+  ['ghost','Hayalet Şirket','Aktif sözleşmen varken hiç temsilcin olmasın.',s=>!!(s.flags||{}).ghost],
+  ['phoenix','Küllerinden Doğan','10 günden uzun eksi kasadan geri dön.',s=>!!(s.flags||{}).phoenix],
+  ['broke','Dibe Vuruş','Kasan −₺50.000\'in altına düşsün.',s=>!!(s.flags||{}).broke],
+  ['zen','Tatil Köyü','En az 3 kişilik ekibin tamamı aynı anda molada olsun.',s=>!!(s.flags||{}).zen],
+  ['perfect','Mükemmeliyetçi','Bir temsilcinin üç yeteneği de 100 olsun.',s=>s.agents.some(a=>a.spd>=100&&a.emp>=100&&a.kno>=100)],
+  ['vipmiss','Meşgul Hat','10 VIP çağrıyı kaçır.',s=>(s.stats.vipMiss||0)>=10],
+  ['cancel3','Söz Uçar','3 sözleşmeyi feshet.',s=>(s.stats.cancels||0)>=3],
+  ['speedy','Sabırsız','8× hızda toplam 30 gün oyna.',s=>(s.stats.fast||0)>=30],
+  ['whip','Kırbaç','Yoğun tempoda ekibin ortalama yorgunluğu 80\'i geçsin.',s=>!!(s.flags||{}).whip],
+  ['sweep','Tam Takır','Bir ödül töreninde bütün kategorileri kazan.',s=>!!(s.flags||{}).sweep],
+];
+for(const [id,n,d,f] of SECRET) ACH.push([id,n,d,f,true]);
+ACH.push(['aw1','Sahneye Çık','İlk sektör ödülünü kazan.',s=>(s.stats.awards||0)>=1],['aw10','Kupa Dolabı','10 sektör ödülü kazan.',s=>(s.stats.awards||0)>=10]);
+Object.assign(ACHX,{aw1:['Büyüme',1,s=>[s.stats.awards||0,1]],aw10:['Büyüme',3,s=>[s.stats.awards||0,10]]});
+for(const [id] of SECRET) ACHX[id]=['Gizli',2,s=>[s.ach[id]?1:0,1]];
+function flag(k){ S.flags=S.flags||{}; if(!S.flags[k]){ S.flags[k]=true; checkAch(); } }
+function secretTick(){
+  const h=new Date().getHours(); if(h<5) flag('night');
+  if(S.contracts.length && !S.agents.length) flag('ghost');
+  if(S.negDays>=10) S.flags=Object.assign(S.flags||{},{deep:true});
+  if((S.flags||{}).deep && S.money>0){ S.flags.deep=false; flag('phoenix'); }
+  if(S.money<-50000) flag('broke');
+  if(S.agents.length>=3 && S.agents.every(a=>a.training&&a.training.stat==='rest')) flag('zen');
+  if((S.tempo??1)===2 && S.agents.length && S.agents.reduce((s,a)=>s+a.fat,0)/S.agents.length>80) flag('whip');
+}
+/* zam + kovma, ayın çalışanını kovma, fesih sayacı: onay düğmesinin ikinci tıklamasını yakala */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b||!S) return;
+  if(b.dataset.act==='raise'){ S.flags=S.flags||{}; S.flags.raised=S.flags.raised||{}; S.flags.raised[b.dataset.id]=Math.floor(S.day); }
+  if(b.dataset.act==='confirm' && UI.confirm===b.dataset.key && performance.now()-UI.confirmT<4000){
+    const [k,id]=b.dataset.key.split(':');
+    if(k==='fire'){ const r=((S.flags||{}).raised||{})[id]; if(r!=null && r===Math.floor(S.day)) flag('flip'); if(S.eom && String(S.eom.id)===id) flag('eomfire'); }
+    if(k==='cancel'){ S.stats.cancels=(S.stats.cancels||0)+1; setTimeout(checkAch,0); }
+  }
+},true);
+{ const _nd=newDay; newDay=function(){ _nd(); if(!S) return; awardsTick(); secretTick(); };
+  const _st=step; step=function(dt){ if(S && S.speed===8 && !OFFLINE) S.stats.fast=(S.stats.fast||0)+dt; _st(dt); }; }
+
+/* --- Şehir görselleri --- */
+const CITY_ART={
+  ank:{sky:['#2b3a67','#e9a86a'],svg:'<rect x="40" y="58" width="160" height="10" fill="#1a2035"/><rect x="60" y="40" width="120" height="18" fill="#232b47"/><g fill="#2e385c">'+Array.from({length:11},(_,i)=>`<rect x="${64+i*10.6}" y="42" width="4" height="16"/>`).join('')+'</g><rect x="56" y="36" width="128" height="5" fill="#2e385c"/><rect x="118" y="14" width="1.6" height="24" fill="#c9cfe0"/><path d="M119.6 14h10l-2 3 2 3h-10z" fill="#e8475a"/>'},
+  izm:{sky:['#1d3b6b','#f2b77a'],svg:'<rect x="0" y="66" width="240" height="24" fill="#24527e"/><path d="M0 70q10-3 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0" stroke="#3d74a8" fill="none"/><rect x="106" y="22" width="16" height="44" fill="#2a3150"/><rect x="102" y="40" width="24" height="5" fill="#363f63"/><rect x="104" y="28" width="20" height="4" fill="#363f63"/><path d="M106 22l8-10 8 10z" fill="#363f63"/><circle cx="114" cy="34" r="2.4" fill="#f5d27a"/><path d="M170 66v-26M170 40q-10-2-16 4M170 40q10-2 16 4M170 40q-6-8-14-6M170 40q6-8 14-6" stroke="#1d2a3f" stroke-width="2" fill="none"/>'},
+  brs:{sky:['#2a3b5f','#9fb6d9'],svg:'<path d="M0 66L70 18l40 30 30-14 100 32z" fill="#3a4a72"/><path d="M58 26l12-8 12 9-6 2-6-3-5 3z" fill="#eef2fb"/><g fill="#232b47"><rect x="90" y="54" width="70" height="14"/><circle cx="102" cy="54" r="7"/><circle cx="118" cy="52" r="8"/><circle cx="134" cy="52" r="8"/><circle cx="150" cy="54" r="7"/><rect x="84" y="30" width="3.5" height="38"/><rect x="163" y="30" width="3.5" height="38"/></g><rect x="0" y="68" width="240" height="22" fill="#1b2138"/>'},
+  ayt:{sky:['#164b72','#ffc285'],svg:'<circle cx="190" cy="40" r="12" fill="#ffd79a"/><rect x="0" y="62" width="240" height="28" fill="#1f6d8f"/><path d="M0 64q15-3 30 0t30 0 30 0 30 0 30 0 30 0 30 0 30 0" stroke="#58a7c6" fill="none"/><path d="M20 62h60l-8-14H34z" fill="#2c3554"/><rect x="48" y="14" width="7" height="34" fill="#313b5d"/><g stroke="#3e4a72" stroke-width="1">'+Array.from({length:4},(_,i)=>`<line x1="${49.5+i*1.5}" y1="16" x2="${49.5+i*1.5}" y2="47"/>`).join('')+'</g><path d="M47 14l4.5-7 4.5 7z" fill="#313b5d"/><path d="M130 62v-24M130 38q-9-1-14 5M130 38q9-1 14 5M130 38q-5-7-12-6M130 38q5-7 12-6" stroke="#18233a" stroke-width="2" fill="none"/>'},
+  ber:{sky:['#252f52','#8aa0c8'],svg:'<rect x="118" y="10" width="2" height="16" fill="#c9cfe0"/><circle cx="119" cy="30" r="7" fill="#3a4770"/><rect x="116.5" y="34" width="5" height="34" fill="#2c3657"/><g fill="#252e4c"><rect x="30" y="44" width="56" height="5"/>'+Array.from({length:6},(_,i)=>`<rect x="${32+i*10}" y="49" width="4" height="19"/>`).join('')+'<rect x="52" y="38" width="12" height="6"/></g><rect x="150" y="48" width="60" height="20" fill="#232b47"/><rect x="0" y="68" width="240" height="22" fill="#1a2035"/>'},
+  dxb:{sky:['#3a2f5e','#ffb47a'],svg:'<path d="M0 72q40-10 80-2t80 0 80-4v24H0z" fill="#c99a62"/><path d="M118 6l3 0 2 20 4 2 2 18 4 2 2 22h-26l2-22 4-2 2-18 4-2z" fill="#2b3150"/><rect x="60" y="40" width="14" height="32" fill="#323a5e"/><rect x="80" y="48" width="12" height="24" fill="#2b3352"/><rect x="150" y="36" width="16" height="36" fill="#323a5e"/><path d="M175 72V44l10-6v34z" fill="#2b3352"/>'},
+  lon:{sky:['#2a3352','#a4aec8'],svg:'<circle cx="170" cy="44" r="24" fill="none" stroke="#4a5682" stroke-width="2"/><g stroke="#4a5682" stroke-width=".8">'+Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return `<line x1="170" y1="44" x2="${(170+24*Math.cos(a)).toFixed(1)}" y2="${(44+24*Math.sin(a)).toFixed(1)}"/>`;}).join('')+'</g><rect x="60" y="22" width="14" height="48" fill="#2c3657"/><rect x="58" y="26" width="18" height="12" fill="#353f66"/><circle cx="67" cy="32" r="4" fill="#f5d27a"/><path d="M60 22l7-12 7 12z" fill="#353f66"/><rect x="0" y="68" width="240" height="22" fill="#1a2035"/><path d="M0 74h240" stroke="#2b3b66" stroke-width="3"/>'},
+  sgp:{sky:['#1f2b5a','#d68ec6'],svg:'<rect x="0" y="66" width="240" height="24" fill="#1d3a66"/><g fill="#2c3657"><path d="M84 66l4-40h10l-2 40z"/><path d="M108 66l4-40h10l-2 40z"/><path d="M132 66l4-40h10l-2 40z"/></g><path d="M78 24h78q4 0 4 3H76q0-3 2-3z" fill="#3a4672"/><g fill="#2a5a4a"><rect x="30" y="44" width="3" height="22"/><path d="M24 44q7-8 15 0z"/><rect x="190" y="40" width="3" height="26"/><path d="M183 40q8-9 17 0z"/></g>'},
+};
+function cityArt(b,l,lock){
+  const a=CITY_ART[b.id]; if(!a) return '';
+  const lights=l? Array.from({length:Math.min(14,l*2)},(_,i)=>`<rect x="${12+((i*37)%216)}" y="${70+(i%3)*5}" width="3" height="2" fill="#ffd77a" opacity=".85"/>`).join('') : '';
+  return `<svg class="city ${lock?'off':''}" viewBox="0 0 240 90" preserveAspectRatio="xMidYMax slice" role="img" aria-label="${b.n} silueti"><defs><linearGradient id="sk_${b.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a.sky[0]}"/><stop offset="1" stop-color="${a.sky[1]}"/></linearGradient></defs><rect width="240" height="90" fill="url(#sk_${b.id})"/>${a.svg}${lights}</svg>`;
+}
 
 /* =========================== BAŞLAT =========================== */
 window.claude?.hot?.snapshot?.(()=>({S,slot:UI.slot}));
