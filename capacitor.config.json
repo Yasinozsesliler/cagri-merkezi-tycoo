@@ -1,0 +1,25 @@
+{
+  "appId": "com.ozsesliler.cagrimerkezi",
+  "appName": "Çağrı Merkezi Tycoon",
+  "webDir": "www",
+  "backgroundColor": "#070a14",
+  "android": {
+    "backgroundColor": "#070a14",
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#070a14",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_notify",
+      "iconColor": "#E8C780"
+    }
+  }
+}

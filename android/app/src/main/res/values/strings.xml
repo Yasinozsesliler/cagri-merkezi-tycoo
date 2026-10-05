@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Çağrı Merkezi Tycoon</string>
+    <string name="title_activity_main">Çağrı Merkezi Tycoon</string>
+    <string name="package_name">com.ozsesliler.cagrimerkezi</string>
+    <string name="custom_url_scheme">com.ozsesliler.cagrimerkezi</string>
+</resources>

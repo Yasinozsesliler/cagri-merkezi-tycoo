@@ -1,0 +1,93 @@
+# Android uygulamasını GitHub'ın sunucularında derler.
+# - İmza anahtarı gizli değişkenlerde varsa: Play Store'a yüklenecek imzalı AAB + kurulabilir APK
+# - Yoksa: test için imzasız (debug) APK
+# Her çalıştırmada "Releases" bölümüne indirilebilir dosyalar konur.
+name: Android derlemesi
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Bağımlılıklar
+        run: npm ci
+
+      - name: Web oyununu uygulamaya kopyala
+        run: |
+          npm run build:www
+          npx cap sync android
+
+      - name: İmza anahtarını hazırla
+        id: sign
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::İmza anahtarı bulunamadı; yalnızca test APK'sı üretilecek."
+          fi
+
+      - name: Derle (imzalı AAB + APK)
+        if: steps.sign.outputs.signed == 'true'
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease assembleRelease
+          mkdir -p ../dist
+          cp app/build/outputs/bundle/release/app-release.aab "../dist/cagri-merkezi-tycoon-$VERSION_NAME.aab"
+          cp app/build/outputs/apk/release/app-release.apk "../dist/cagri-merkezi-tycoon-$VERSION_NAME.apk"
+
+      - name: Derle (test APK)
+        if: steps.sign.outputs.signed != 'true'
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+          mkdir -p ../dist
+          cp app/build/outputs/apk/debug/app-debug.apk "../dist/cagri-merkezi-tycoon-$VERSION_NAME-test.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cagri-merkezi-tycoon-${{ env.VERSION_NAME }}
+          path: dist/*
+
+      - name: Sürüm sayfasına yükle
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION_NAME }}
+          name: Çağrı Merkezi Tycoon ${{ env.VERSION_NAME }}
+          body: |
+            ${{ steps.sign.outputs.signed == 'true' && 'İmzalı sürüm. .aab dosyasını Play Console''a yükle, .apk dosyasını telefona doğrudan kurabilirsin.' || 'Test sürümü (imzasız). .apk dosyasını telefona kurup deneyebilirsin. Play Store için imza anahtarını GitHub gizli değişkenlerine ekle.' }}
+          files: dist/*

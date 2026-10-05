@@ -15,9 +15,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
 [hidden]{display:none!important}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -540,6 +538,8 @@ details.set .panel{box-shadow:none}
   .top2 .res .speed{grid-column:1/-1}.top2 .res .speed button{flex:1}
   .top2 .res .chip:nth-child(5){grid-column:1/-1}
   .tabbar{display:none}
+  .brandbar{flex:1 1 0;min-width:0}
+  .top2 .homebtn{width:38px;height:38px}
   .top2 .res{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
   .top2 .res .chip{padding:6px 9px;gap:0}
   .top2 .res .chip .ic{display:none}
@@ -719,6 +719,17 @@ select{font:600 12.5px var(--f-body);color:var(--ink);background:var(--panel-2);
 .br>.row:first-of-type{margin-top:2px}
 .city{display:block;width:calc(100% + 24px);margin:0 -12px 4px;height:88px;border-bottom:1px solid var(--line)}
 .city.off{filter:grayscale(1) brightness(.6)}
+
+/* ===== ÇARK & UYGULAMA MODU ===== */
+.wheel{display:grid;place-items:center}
+.wheel-svg{width:min(280px,72vw);height:auto;filter:drop-shadow(0 18px 30px rgba(0,0,0,.55))}
+.wheelres{text-align:center;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.wheelqa.ready{border-color:rgba(232,199,128,.55);box-shadow:0 0 0 1px rgba(232,199,128,.2),0 10px 26px -14px rgba(232,199,128,.8)}
+.wheelqa.ready .qic{background:radial-gradient(circle at 30% 25%,#fff3d1,var(--gold) 45%,var(--gold-deep))}
+.wheelqa.ready .qic svg{stroke:var(--on-gold)}
+html.native,html.native body{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+html.native input,html.native textarea{-webkit-user-select:text;user-select:text}
+html.native .homebtn[data-act=menu]{display:grid}
 </style>
 </head>
 <body>
@@ -1923,6 +1934,8 @@ function nextModal(){
       <div class="spec"><div><span>Kasa</span><b class="${m.money>=0?'good':'bad'}">${m.money>=0?'+':''}${fm(m.money)}</b></div><div><span>Yanıtlanan çağrı</span><b>${fn(m.calls)}</b></div><div><span>Biten sözleşme</span><b>${m.done}</b></div><div><span>İtibar</span><b>${m.rep>=0?'+':''}${fn(m.rep)}</b></div></div>
       ${!has('autorenew')?'<p class="sub">İpucu: Hesap Yöneticisi Sistemi sen yokken sözleşmeleri yeniler ve yeni teklifleri kabul eder.</p>':''}
       <button class="btn pri" data-act="closeModal">Devam</button>`;
+  } else if(m.type==='wheel'){
+    h=wheelModalHTML();
   } else if(m.type==='awards'){
     h=awardsModalHTML(m);
   } else if(m.type==='daily'){
@@ -2141,7 +2154,7 @@ function corpView(){
     <div id="sec-fin" class="stack">${fin}${charts}</div>
     <div id="sec-hold" class="stack">${holdingPage()}</div>
     <div id="sec-ach" class="stack">${achPage()}</div>
-    <details class="set" id="sec-set" ${UI.setOpen?'open':''}><summary>Ayarlar ve kayıt</summary><div class="stack" style="padding-bottom:18px">${notifSettingsHTML()}${settingsPage()}</div></details>`;
+    <details class="set" id="sec-set" ${UI.setOpen?'open':''}><summary>Ayarlar ve kayıt</summary><div class="stack" style="padding-bottom:18px">${notifSettingsHTML()}${mobileSettingsHTML()}${settingsPage()}</div></details>`;
 }
 function renderView(){
   UI.view=TABMAP[UI.view]||UI.view;
@@ -2902,12 +2915,163 @@ function cityArt(b,l,lock){
   return `<svg class="city ${lock?'off':''}" viewBox="0 0 240 90" preserveAspectRatio="xMidYMax slice" role="img" aria-label="${b.n} silueti"><defs><linearGradient id="sk_${b.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a.sky[0]}"/><stop offset="1" stop-color="${a.sky[1]}"/></linearGradient></defs><rect width="240" height="90" fill="url(#sk_${b.id})"/>${a.svg}${lights}</svg>`;
 }
 
+/* =========================== MOBİL & EĞLENCE: ÇARK, ZOR ÇAĞRILAR, TİTREŞİM, ANDROID =========================== */
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const CP = () => (window.Capacitor && window.Capacitor.Plugins) || {};
+if(NATIVE) document.documentElement.classList.add('native');
+
+/* --- Titreşim --- */
+function buzz(kind){
+  if(S && S.haptics===false) return;
+  try{ const H=CP().Haptics; if(H){ H.impact({style: kind==='big'?'HEAVY':'LIGHT'}); return; } if(navigator.vibrate) navigator.vibrate(kind==='big'?[30,40,30]:15); }catch(e){}
+}
+
+/* --- Günlük şans çarkı --- */
+const WHEEL=[
+  {k:'money',n:'Küçük ikramiye',s:'Küçük ₺',m:1,c:'#3a4a7a'},
+  {k:'rp',n:'AR-GE paketi',s:'AR-GE',m:1,c:'#5b4bb3'},
+  {k:'money',n:'Büyük ikramiye',s:'Büyük ₺',m:3,c:'#b8914a'},
+  {k:'morale',n:'Ekip pizzası',s:'Pizza',m:1,c:'#2f7d63'},
+  {k:'money',n:'İkramiye',s:'İkramiye',m:1.8,c:'#3a4a7a'},
+  {k:'boost',n:'10 gün +%25 gelir',s:'+%25',m:1,c:'#a8452f'},
+  {k:'rep',n:'Basında övgü',s:'Övgü',m:1,c:'#2c6aa0'},
+  {k:'jackpot',n:'JACKPOT',s:'JACKPOT',m:6,c:'#e8c780'},
+];
+const WHEEL_W=[16,14,8,14,14,12,14,3];   // ağırlıklar (toplam 95+)
+function todayKey(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function wheelReady(){ return S && S.wheelDay!==todayKey(); }
+function wheelBase(){ const ti=tierIdx(); return Math.max(3000, niceRound(4000*TIERS[ti].mult)); }
+function wheelSVG(){
+  const n=WHEEL.length, r=120, cx=130, cy=130, seg=2*Math.PI/n;
+  let s=`<svg viewBox="0 0 260 260" class="wheel-svg" aria-hidden="true"><g id="wheelG" style="transform-origin:130px 130px">`;
+  WHEEL.forEach((w,i)=>{ const a0=i*seg-Math.PI/2, a1=a0+seg; const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0), x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    const am=(a0+a1)/2, tx=cx+r*.62*Math.cos(am), ty=cy+r*.62*Math.sin(am);
+    s+=`<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${w.c}" stroke="#0b0f1c" stroke-width="2"/>`;
+    s+=`<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" fill="${w.k==='jackpot'?'#1b1407':'#eef1fa'}" font-size="12" font-weight="800" font-family="Manrope,sans-serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(${(am*180/Math.PI+90).toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)})">${w.s}</text>`; });
+  s+=`</g><circle cx="130" cy="130" r="20" fill="#0e1323" stroke="#e8c780" stroke-width="3"/><path d="M130 2 l10 18 h-20z" fill="#e8c780"/></svg>`;
+  return s;
+}
+function spinWheel(){
+  if(!wheelReady()||UI.spinning) return;
+  const tot=WHEEL_W.reduce((a,b)=>a+b,0); let x=Math.random()*tot, idx=0; for(;idx<WHEEL.length;idx++){ x-=WHEEL_W[idx]; if(x<=0) break; } idx=Math.min(idx,WHEEL.length-1);
+  S.wheelDay=todayKey(); UI.spinning=true; buzz();
+  const seg=360/WHEEL.length, target=360*6 + (360 - (idx*seg + seg/2));
+  const g=document.getElementById('wheelG'); const rd=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(g){ g.style.transition=rd?'none':'transform 3.6s cubic-bezier(.17,.67,.12,1)'; g.style.transform=`rotate(${target}deg)`; }
+  setTimeout(()=>{ UI.spinning=false; wheelPrize(idx); }, rd?50:3700);
+}
+function wheelPrize(i){
+  const w=WHEEL[i], base=wheelBase(), ti=tierIdx(); let msg='';
+  if(w.k==='money'||w.k==='jackpot'){ const m=niceRound(base*w.m); S.money+=m; S.stats.earned+=m; msg=`+${fm(m)}`; if(w.k==='jackpot'){ S.rp+=20*(ti+1); msg+=` ve +${20*(ti+1)} AR-GE`; } }
+  else if(w.k==='rp'){ const p=12*(ti+1); S.rp+=p; msg=`+${p} AR-GE puanı`; }
+  else if(w.k==='rep'){ const r=Math.round(5*TIERS[ti].mult); S.rep+=r; msg=`+${r} itibar`; }
+  else if(w.k==='morale'){ S.agents.forEach(a=>a.bonus+=12); msg='ekip morali +12'; }
+  else if(w.k==='boost'){ S.boostUntil=S.day+10; msg='10 gün boyunca gelir +%25'; }
+  S.stats.spins=(S.stats.spins||0)+1; if(w.k==='jackpot') S.stats.jackpots=(S.stats.jackpots||0)+1;
+  addLog(`Şans çarkı: ${w.n} · ${msg}.`,'good'); toast(`Şans çarkı: ${w.n} · ${msg}`,true); buzz('big');
+  const r=$('#wheelRes'); if(r) r.innerHTML=`<span class="eyebrow" style="color:var(--gold-2)">Kazandın</span><div class="biggold" style="font-size:26px">${w.n}</div><span class="sub">${msg}</span>`;
+  const b=$('#wheelBtn'); if(b){ b.textContent='Harika'; b.dataset.act='closeModal'; b.disabled=false; }
+  checkAch(); UI.dirty=true;
+}
+function wheelModalHTML(){
+  return `<div style="text-align:center"><span class="eyebrow" style="color:var(--gold-2)">Her gün bir kez</span><h2>Şans çarkı</h2></div>
+    <div class="wheel">${wheelSVG()}</div>
+    <div id="wheelRes" class="wheelres"><span class="sub">${wheelReady()?'Çarkı çevir, ödülünü kap. Yarın yeniden gel!':'Bugünkü hakkını kullandın. Yarın yeniden gel!'}</span></div>
+    <button class="btn pri" id="wheelBtn" data-act="${wheelReady()?'spin':'closeModal'}">${wheelReady()?'Çevir':'Tamam'}</button>`;
+}
+
+/* --- Zor çağrılar: müşteri hizmetleri ikilemleri --- */
+const CALLS=[
+  {t:'Kargo gecikmesi',q:'"Siparişim 5 gündür yolda, artık iptal etmek istiyorum!"',o:[
+    ['Özür dile, kargoyu anında takip et ve net bir teslim günü ver',2],['İptal talebini hemen al',1],['"Kargo firmasını arayın" de',0]]},
+  {t:'Faturada yanlış ücret',q:'"Faturamda kullanmadığım bir paket var, dolandırıldım!"',o:[
+    ['Ücreti incele, hatalıysa iade et ve yazılı bilgi ver',2],['Bir sonraki faturaya indirim tanımla',1],['"Sözleşmenizde yazıyor" diye açıkla',0]]},
+  {t:'Üçüncü kez arayan müşteri',q:'"Bu sorun için üçüncü kez arıyorum, her seferinde başka şey söylüyorsunuz."',o:[
+    ['Geçmiş kayıtları oku, sorunu tek görüşmede sonuna kadar çöz',2],['Kaydı üst birime aktar ve geri dönüş sözü ver',1],['Baştan bilgilerini iste ve yeni kayıt aç',0]]},
+  {t:'Bağıran müşteri',q:'"Sizin gibi beceriksizlerle mi uğraşacağım!"',o:[
+    ['Sakin kal, duygusunu kabul et ve çözüme odaklan',2],['Kibarca uyarıp görüşmeyi kayda aldığını söyle',1],['Telefonu kapat',0]]},
+  {t:'Bilmediğin bir soru',q:'"Yeni tarifenizde yurt dışı paketleri nasıl çalışıyor?"',o:[
+    ['Bilgi bankasından doğrula, emin olduğun bilgiyi ver',2],['Bekletip bir uzmana aktar',1],['Tahminle cevap ver',0]]},
+  {t:'Yaşlı müşteri',q:'"Evladım, bu internet bankacılığını bir türlü açamadım."',o:[
+    ['Adım adım, sabırla ve teyit ederek birlikte yap',2],['Şubeye gitmesini öner',1],['Kısa bir SMS rehberi gönderip görüşmeyi bitir',0]]},
+  {t:'İade talebi',q:'"Ürün açıklamadaki gibi değil, paramı geri istiyorum."',o:[
+    ['Fotoğraf iste, iade sürecini başlat ve süreyi net söyle',2],['Değişim öner',1],['"İade süresi geçti" de, ayrıntıya girme',0]]},
+  {t:'Sosyal medyada tehdit',q:'"Sorunumu 10 dakikada çözmezseniz herkese yazacağım."',o:[
+    ['Sorunu hızla çöz, takip için doğrudan iletişim bilgisi ver',2],['Sosyal medya ekibine yönlendir',1],['Tehdide boyun eğmeyeceğini söyle',0]]},
+];
+function callOutcome(sc,q){
+  const ti=tierIdx(), M=TIERS[ti].mult;
+  if(q===2){ const r=Math.max(1,Math.round(3*M)), m=niceRound(wheelBase()*.6); S.rep+=r; S.money+=m; S.stats.goodCalls=(S.stats.goodCalls||0)+1;
+    addLog(`Zor çağrı (${sc.t}): doğru yaklaşım! Müşteri teşekkür etti. +${r} itibar, +${fm(m)} memnuniyet primi.`,'good'); toast(`Doğru yaklaşım! +${r} itibar`,true); buzz(); }
+  else if(q===1){ addLog(`Zor çağrı (${sc.t}): idare eder bir çözüm. Müşteri kapattı ama tam memnun değil.`); toast('İdare eder bir çözüm',true); }
+  else { const r=Math.max(1,Math.round(3*M)); S.rep=Math.max(0,S.rep-r); S.stats.badCalls=(S.stats.badCalls||0)+1; addLog(`Zor çağrı (${sc.t}): müşteri çok sinirlendi ve şikâyet etti. −${r} itibar.`,'bad'); toast(`Müşteri şikâyet etti: −${r} itibar`,true); }
+  checkAch(); UI.dirty=true;
+}
+CALLS.forEach((sc,k)=>EVENTS.push({id:'call'+k,t:`Zor çağrı: ${sc.t}`,def:1,
+  prep:()=>S.contracts.length?{ord:[0,1,2].sort(()=>Math.random()-.5)}:null,
+  d:()=>`Müşteri hatta: ${sc.q} Nasıl karşılık verirsin?`,
+  ch:[0,1,2].map(i=>({l:x=>sc.o[x.ord[i]][0], f:x=>callOutcome(sc, sc.o[x.ord[i]][1])}))}));
+
+/* --- Android: geri tuşu, arka plan bildirimi --- */
+function backButton(){
+  if(UI.modalOpen){ const m=$('#modalRoot .modal'); const closer=m&&m.querySelector('[data-act=closeModal]'); if(closer){ nextModal(); } return; }
+  if(S && S.tut!=null) return;
+  if(S && UI.view!=='hub'){ go('hub'); return; }
+  if(S && $('#menu').hidden){ exitToMenu(); return; }
+  try{ CP().App && CP().App.exitApp(); }catch(e){}
+}
+async function scheduleIdleNote(){
+  const LN=CP().LocalNotifications; if(!NATIVE||!LN||!S||!S.idleNotif) return;
+  try{ await LN.cancel({notifications:[{id:7001}]}); const at=new Date(Date.now()+3*3600*1000);
+    await LN.schedule({notifications:[{id:7001,title:'Çağrı merkezin seni bekliyor',body:`${S.name}: hatlar çalışmaya devam ediyor. Gel, kazancını ve hedeflerini topla!`,schedule:{at}}]}); }catch(e){}
+}
+async function cancelIdleNote(){ const LN=CP().LocalNotifications; if(!LN) return; try{ await LN.cancel({notifications:[{id:7001}]}); }catch(e){} }
+async function toggleIdleNotif(){
+  if(!S) return; const LN=CP().LocalNotifications;
+  if(!S.idleNotif){ if(NATIVE&&LN){ try{ const p=await LN.requestPermissions(); if(p.display!=='granted'){ toast('Bildirim izni verilmedi',true); return; } }catch(e){} } S.idleNotif=true; toast('Hatırlatıcı açıldı',true); }
+  else { S.idleNotif=false; cancelIdleNote(); toast('Hatırlatıcı kapatıldı',true); }
+  UI.dirty=true;
+}
+if(NATIVE){
+  try{ const A=CP().App; if(A){ A.addListener('backButton',backButton); A.addListener('pause',()=>{ save(); scheduleIdleNote(); }); A.addListener('resume',()=>{ cancelIdleNote(); }); } }catch(e){}
+  try{ const SB=CP().StatusBar; if(SB){ SB.setBackgroundColor({color:'#070a14'}); SB.setStyle({style:'DARK'}); } }catch(e){}
+  try{ const SP=CP().SplashScreen; if(SP) setTimeout(()=>SP.hide(),300); }catch(e){}
+}
+
+/* --- Ayarlar ve çark erişimi --- */
+function mobileSettingsHTML(){
+  return `<section class="panel"><div class="ph"><div><span class="eyebrow">Telefon</span><h2>Titreşim ve hatırlatıcı</h2></div></div>
+    <label class="tog"><input type="checkbox" data-act="hapTog" ${S.haptics!==false?'checked':''}><span>Ödül ve VIP çağrılarda titreşim</span></label>
+    ${NATIVE?`<label class="tog" style="border:0"><input type="checkbox" data-act="idleTog" ${S.idleNotif?'checked':''}><span>Oyundan çıktıktan 3 saat sonra hatırlat <span class="mini">· yalnızca uygulamada</span></span></label>`:''}
+    <p class="mini" style="margin-top:10px"><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--gold)">Gizlilik politikası</a></p></section>`;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b||!S) return; const a=b.dataset.act;
+  if(a==='wheel') queueModal({type:'wheel'});
+  else if(a==='spin'){ b.disabled=true; spinWheel(); }
+  else if(a==='hapTog'){ S.haptics=!(S.haptics!==false); }
+  else if(a==='idleTog'){ e.preventDefault(); toggleIdleNotif(); }
+});
+/* sarmalayıcılar: titreşim ve çark modalı */
+{ const _av=answerVip; answerVip=function(){ const had=!!UI.vip; _av(); if(had) buzz(); };
+  const _cg=claimGoal; claimGoal=function(g,silent){ const ok=g&&!g.claimed&&goalDone(g); _cg(g,silent); if(ok&&!silent) buzz(); };
+  const _ce=ceremony; ceremony=function(){ _ce(); if(!OFFLINE) buzz('big'); };
+  const _qa=qaHTML; qaHTML=function(){ const h=_qa(); const ready=wheelReady();
+    const btn=`<button class="qa wheelqa ${ready?'ready':''}" data-act="wheel"><span class="qic">${ic('star',2)}</span><span style="min-width:0"><b>Şans çarkı</b><span class="mini">${ready?'Bugünkü hakkın hazır!':'Yarın yeniden çevir'}</span></span></button>`;
+    return h.replace('<div class="qas">','<div class="qas">'+btn); };
+}
+{ const _eff=eff; eff=function(){ const E=_eff(); if(S && (S.boostUntil||0)>S.day) E.rev*=1.25; return E; }; }
+ACH.push(['spin10','Çarkıfelek','Şans çarkını 10 kez çevir.',s=>(s.stats.spins||0)>=10],
+         ['jackpot','Büyük İkramiye','Şans çarkında JACKPOT çıkar.',s=>(s.stats.jackpots||0)>=1],
+         ['calls10','Müşteri Fısıldayan','10 zor çağrıyı doğru yaklaşımla çöz.',s=>(s.stats.goodCalls||0)>=10]);
+Object.assign(ACHX,{spin10:['Gelişim',0,s=>[s.stats.spins||0,10]],jackpot:['Gelişim',3,s=>[s.stats.jackpots||0,1]],calls10:['Operasyon',2,s=>[s.stats.goodCalls||0,10]]});
+
 /* =========================== BAŞLAT =========================== */
 window.claude?.hot?.snapshot?.(()=>({S,slot:UI.slot}));
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 </script>
 <script>
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{})); }
+if('serviceWorker' in navigator && !(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())){ window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{})); }
 </script>
 </body>
 </html>
