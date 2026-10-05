@@ -2,7 +2,7 @@
   "name": "cagri-merkezi-tycoon",
   "version": "1.0.0",
   "private": true,
-  "description": "Çağrı Merkezi Tycoon — idle çağrı merkezi yönetim oyunu (web + Android)",
+  "description": "Call Center Simülatör — idle çağrı merkezi yönetim oyunu (web + Android)",
   "scripts": {
     "build:www": "node scripts/build-www.mjs",
     "android:sync": "npm run build:www && npx cap sync android",

@@ -1,4 +1,4 @@
-# Çağrı Merkezi Tycoon
+# Call Center Simülatör
 
 Premium idle çağrı merkezi yönetim oyunu. Tek sayfalık statik site: derleme adımı yok.
 
